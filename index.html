@@ -102,7 +102,7 @@
 
         .question-line {
             position: absolute;
-            font-size: clamp(20px, 5vw, 30px);
+            font-size: clamp(18px, 4.5vw, 28px);
             color: #fff7e0;
             text-align: center;
             letter-spacing: 3px;
@@ -115,39 +115,39 @@
             opacity: 1;
         }
 
-        /* 三个句子各自的远处起始位置 */
+        /* 三个句子各自的远处起始位置——也向竖屏中心靠拢 */
         .q1-start {
-            top: 90%;
-            left: 90%;
+            top: 88%;
+            left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
         }
         .q2-start {
-            top: 90%;
-            left: 10%;
+            top: 88%;
+            left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
         }
         .q3-start {
-            top: 15%;
-            left: 85%;
+            top: 88%;
+            left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
         }
 
-        /* 活泼的不规则布局 */
+        /* 竖屏集中布局：左右向中心收紧，垂直三段式排列 */
         .question-line.pos-top {
-            top: 18%;
-            left: 35%;
-            transform: translate(-50%, 0) rotate(-4deg);
+            top: 22%;
+            left: 50%;
+            transform: translate(-50%, 0) rotate(-2deg);
         }
         .question-line.pos-mid {
-            top: 52%;
-            left: 68%;
-            transform: translate(-50%, -50%) rotate(2.5deg);
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(1.5deg);
         }
         .question-line.pos-bot {
-            top: 78%;
-            left: 42%;
-            transform: translate(-50%, -100%) rotate(-2deg);
-            font-size: clamp(22px, 5.5vw, 34px);
+            top: 74%;
+            left: 50%;
+            transform: translate(-50%, -100%) rotate(-1deg);
+            font-size: clamp(20px, 5vw, 32px);
         }
 
         /* 发光扫过效果 */
@@ -432,13 +432,13 @@
                 max-height: 85vh;
             }
             .question-line.pos-top {
-                left: 25%;
+                top: 20%;
             }
             .question-line.pos-mid {
-                left: 75%;
+                top: 46%;
             }
             .question-line.pos-bot {
-                left: 40%;
+                top: 72%;
             }
         }
     </style>
@@ -526,7 +526,7 @@
             const q2 = document.getElementById('q2');
             const q3 = document.getElementById('q3');
 
-            let phase = 'prompt'; // prompt | questions | video | envelope | opened
+            let phase = 'prompt';
             let questionIndex = 0;
 
             function startExperience() {
@@ -542,16 +542,13 @@
                 const els = [q1, q2, q3];
                 const el = els[index];
 
-                // 设置初始远处位置
                 if (index === 0) el.classList.add('q1-start');
                 if (index === 1) el.classList.add('q2-start');
                 if (index === 2) el.classList.add('q3-start');
 
-                // 显示（带远处小尺寸和透明度为0，.show会令opacity变1）
                 el.classList.add('show');
                 questionIndex = index + 1;
 
-                // 100ms后移除起始位置类，添加目标位置类，触发弹跳
                 setTimeout(() => {
                     if (index === 0) {
                         el.classList.remove('q1-start');
@@ -564,8 +561,7 @@
                     if (index === 2) {
                         el.classList.remove('q3-start');
                         el.classList.add('pos-bot');
-                        // 最后一句落定后，停留800ms进入视频
-                        setTimeout(() => { startVideo(); }, 1800);
+                        setTimeout(() => { startVideo(); }, 800);
                     }
                 }, 100);
             }
@@ -579,7 +575,6 @@
                 bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
 
                 bgVideo.addEventListener('ended', onVideoEnded);
-                // 12秒保护（视频约10秒）
                 setTimeout(() => {
                     if (phase === 'video') onVideoEnded();
                 }, 12000);
