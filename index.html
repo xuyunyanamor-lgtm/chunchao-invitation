@@ -33,16 +33,20 @@
             inset: 0;
             z-index: 1;
             pointer-events: none;
+            opacity: 0;
             transition: opacity 1.2s ease;
+        }
+        .video-bg.show {
+            opacity: 1;
+        }
+        .video-bg.fade-out {
+            opacity: 0;
         }
         .video-bg video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             pointer-events: none;
-        }
-        .video-bg.fade-out {
-            opacity: 0;
         }
 
         /* ========== 轻触开始提示 ========== */
@@ -62,55 +66,141 @@
             pointer-events: none;
         }
         .tap-prompt .prompt-text {
-            font-size: clamp(18px, 4vw, 26px);
+            font-size: clamp(20px, 5vw, 30px);
             color: #f7f3e6;
             letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(207, 233, 229, 0.7), 0 4px 15px rgba(0,0,0,0.6);
+            text-shadow: 0 0 20px rgba(207, 233, 229, 0.7), 0 4px 15px rgba(0, 0, 0, 0.6);
             margin-bottom: 20px;
+            animation: gentlePulse 2s ease-in-out infinite;
         }
         .tap-prompt .prompt-icon {
             font-size: 36px;
             color: #e0c87c;
             animation: floatIcon 2s ease-in-out infinite;
         }
+        @keyframes gentlePulse {
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
         @keyframes floatIcon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
         }
 
-        /* ========== 逐句文字层 ========== */
-        .text-stage {
+        /* ========== 三句质问层 ========== */
+        .questions-stage {
             position: fixed;
             inset: 0;
             z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             pointer-events: none;
-            transition: opacity 0.8s ease;
-        }
-        .sentence {
-            position: absolute;
-            font-size: clamp(20px, 5vw, 32px);
-            color: #f7f3e6;
-            text-align: center;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(207, 233, 229, 0.7), 0 4px 15px rgba(0,0,0,0.6);
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-            max-width: 85%;
-            line-height: 1.6;
-            pointer-events: none;
+            transition: opacity 0.6s ease;
         }
-        .sentence.show {
+        .questions-stage.active {
             opacity: 1;
-            transform: translateY(0);
         }
-        .sentence.hide {
+
+        .question-line {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(20px, 5vw, 30px);
+            color: #fff7e0;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(255, 215, 100, 0.8), 0 0 60px rgba(255, 180, 50, 0.5), 0 4px 15px rgba(0, 0, 0, 0.6);
             opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            white-space: nowrap;
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* 弹跳缓出 */
+        }
+        .question-line.show {
+            opacity: 1;
+        }
+        /* 三句定格位置 */
+        .question-line.pos-top {
+            top: 22%;
+            transform: translate(-50%, 0);
+        }
+        .question-line.pos-mid {
+            top: 48%;
+            transform: translate(-50%, -50%);
+        }
+        .question-line.pos-bot {
+            top: 74%;
+            transform: translate(-50%, -100%);
+        }
+
+        /* 发光扫过效果 */
+        .question-line::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.4) 40%,
+                    rgba(255, 255, 255, 0.6) 50%,
+                    rgba(255, 255, 255, 0.4) 60%,
+                    transparent 100%);
+            animation: shimmer 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 120%;
+            }
+        }
+
+        /* 背景粒子 */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .particles.active {
+            opacity: 1;
+        }
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd97a;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffc850, 0 0 20px #ffb830;
+            animation: particleFloat 4s ease-in-out infinite;
+        }
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) translateX(40px) scale(0.3);
+                opacity: 0;
+            }
         }
 
         /* ========== 信封容器 ========== */
@@ -166,8 +256,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            transition: transform 0.7s cubic-bezier(0.23,1,0.32,1), opacity 0.7s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.7s ease;
             pointer-events: auto;
             cursor: pointer;
         }
@@ -178,7 +268,7 @@
             left: 12px;
             right: 12px;
             bottom: 12px;
-            border: 1px solid rgba(197,168,106,0.35);
+            border: 1px solid rgba(197, 168, 106, 0.35);
             border-radius: 6px;
             pointer-events: none;
         }
@@ -200,8 +290,8 @@
             color: #b8a67c;
             letter-spacing: 6px;
             margin-bottom: 28px;
-            border-top: 1px solid rgba(197,168,106,0.4);
-            border-bottom: 1px solid rgba(197,168,106,0.4);
+            border-top: 1px solid rgba(197, 168, 106, 0.4);
+            border-bottom: 1px solid rgba(197, 168, 106, 0.4);
             display: inline-block;
             padding: 6px 20px;
         }
@@ -213,9 +303,15 @@
             animation: hintPulse 2s infinite;
         }
         @keyframes hintPulse {
-            0% { opacity: 0.45; }
-            50% { opacity: 0.9; }
-            100% { opacity: 0.45; }
+            0% {
+                opacity: 0.45;
+            }
+            50% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0.45;
+            }
         }
         .sender-line {
             margin-top: 30px;
@@ -236,7 +332,7 @@
             padding: 40px 32px 32px;
             color: #3e3322;
             line-height: 1.9;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             z-index: 3;
             opacity: 0;
             pointer-events: none;
@@ -343,6 +439,9 @@
     </style>
 </head>
 <body>
+    <!-- 粒子层 -->
+    <div class="particles" id="particlesLayer"></div>
+
     <!-- 视频背景 -->
     <div class="video-bg" id="videoBg">
         <video id="bgVideo" muted playsinline preload="auto">
@@ -357,12 +456,11 @@
         <div class="prompt-icon">▼</div>
     </div>
 
-    <!-- 逐句文字 -->
-    <div class="text-stage" id="textStage" style="opacity: 0; pointer-events: none;">
-        <div class="sentence" id="s1">你想要锻炼自己的评委水平吗？</div>
-        <div class="sentence" id="s2">你也对评委奇怪的判准心生不满吗？</div>
-        <div class="sentence" id="s3">听完评委的话，觉得有很多想要回击的吗？</div>
-        <div class="sentence" id="s4">这一次，你来给我打分！</div>
+    <!-- 三句质问 -->
+    <div class="questions-stage" id="questionsStage">
+        <div class="question-line" id="q1">你想要锻炼自己的评委水平吗？</div>
+        <div class="question-line" id="q2">你也对评委奇怪的判准心生不满吗？</div>
+        <div class="question-line" id="q3">听完评委的话，觉得有很多想要回击的吗？</div>
     </div>
 
     <!-- 信封容器 -->
@@ -399,73 +497,99 @@
 
     <script>
         (function() {
+            // 粒子生成
+            const particlesLayer = document.getElementById('particlesLayer');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.classList.add('particle');
+                p.style.left = Math.random() * 90 + '%';
+                p.style.top = 60 + Math.random() * 40 + '%';
+                p.style.animationDelay = Math.random() * 3 + 's';
+                p.style.animationDuration = 3 + Math.random() * 5 + 's';
+                p.style.width = p.style.height = (3 + Math.random() * 6) + 'px';
+                particlesLayer.appendChild(p);
+            }
+
             const bgVideo = document.getElementById('bgVideo');
             const videoBg = document.getElementById('videoBg');
             const tapPrompt = document.getElementById('tapPrompt');
-            const textStage = document.getElementById('textStage');
+            const questionsStage = document.getElementById('questionsStage');
             const envelopeContainer = document.getElementById('envelopeContainer');
             const envelopeStage = document.getElementById('envelopeStage');
 
-            const sentenceEls = [
-                document.getElementById('s1'),
-                document.getElementById('s2'),
-                document.getElementById('s3'),
-                document.getElementById('s4')
-            ];
+            const q1 = document.getElementById('q1');
+            const q2 = document.getElementById('q2');
+            const q3 = document.getElementById('q3');
 
-            let activeSentence = -1;
-            let phase = 'prompt'; // prompt | playing | sentences | envelope | opened
-            let sentencesShown = 0;
+            let phase = 'prompt'; // prompt | questions | video | envelope | opened
+            let questionIndex = 0;
 
-            // 移除“轻触开始”提示，播放视频
+            // 点击开始
             function startExperience() {
                 if (phase !== 'prompt') return;
-                phase = 'playing';
+                phase = 'questions';
                 tapPrompt.classList.add('hidden');
-                bgVideo.play().catch(e => console.log('视频自动播放失败，但会被后续交互触发'));
+                // 显示粒子
+                particlesLayer.classList.add('active');
+                // 显示问题舞台
+                questionsStage.classList.add('active');
+                // 弹出第一句
+                setTimeout(() => showQuestion(0), 400);
+            }
 
-                // 监听视频结束
+            function showQuestion(index) {
+                const el = [q1, q2, q3][index];
+                el.classList.add('show');
+                questionIndex = index + 1;
+
+                // 给前一句安排位置
+                if (index === 0) {
+                    // 第一句留在中央，延迟后移到上方
+                    setTimeout(() => {
+                        el.classList.add('pos-top');
+                    }, 1200);
+                } else if (index === 1) {
+                    setTimeout(() => {
+                        el.classList.add('pos-mid');
+                    }, 1200);
+                } else if (index === 2) {
+                    setTimeout(() => {
+                        el.classList.add('pos-bot');
+                    }, 1200);
+                    // 三句就位，定格1.2秒后进入视频
+                    setTimeout(() => {
+                        startVideo();
+                    }, 1800);
+                }
+            }
+
+            function startVideo() {
+                if (phase !== 'questions') return;
+                phase = 'video';
+                // 隐藏问题和粒子
+                particlesLayer.classList.remove('active');
+                questionsStage.classList.remove('active');
+                // 显示视频
+                videoBg.classList.add('show');
+                bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
+
+                // 监听结束
                 bgVideo.addEventListener('ended', onVideoEnded);
-                // 万一循环，加个保险超时
+                // 15秒保护
                 setTimeout(() => {
-                    if (phase === 'playing') onVideoEnded();
-                }, 15000); // 15秒保护
+                    if (phase === 'video') onVideoEnded();
+                }, 15000);
             }
 
             function onVideoEnded() {
-                if (phase !== 'playing') return;
+                if (phase !== 'video') return;
                 bgVideo.removeEventListener('ended', onVideoEnded);
-                phase = 'sentences';
-                // 淡出视频
-                videoBg.classList.add('fade-out');
-                // 准备文字层
-                textStage.style.opacity = '1';
-                textStage.style.pointerEvents = 'none';
-                // 显示第一句
-                showSentence(0);
-                sentencesShown = 1;
-            }
-
-            function showSentence(index) {
-                if (activeSentence >= 0) {
-                    sentenceEls[activeSentence].classList.remove('show');
-                    sentenceEls[activeSentence].classList.add('hide');
-                    const prev = activeSentence;
-                    setTimeout(() => {
-                        sentenceEls[prev].classList.remove('hide');
-                    }, 400);
-                }
-                sentenceEls[index].classList.add('show');
-                activeSentence = index;
-            }
-
-            function transitionToEnvelope() {
-                if (phase !== 'sentences') return;
                 phase = 'envelope';
-                textStage.style.opacity = '0';
+                videoBg.classList.add('fade-out');
                 setTimeout(() => {
+                    videoBg.classList.remove('show', 'fade-out');
                     envelopeContainer.classList.add('visible');
-                }, 400);
+                }, 800);
             }
 
             function openEnvelope() {
@@ -475,23 +599,18 @@
                 envelopeStage.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // 全局点击处理器
+            // 全局点击
             document.body.addEventListener('click', function(e) {
                 if (phase === 'prompt') {
                     startExperience();
-                } else if (phase === 'sentences') {
-                    if (sentencesShown < 4) {
-                        showSentence(sentencesShown);
-                        sentencesShown++;
-                    } else if (sentencesShown === 4) {
-                        transitionToEnvelope();
+                } else if (phase === 'questions') {
+                    if (questionIndex < 3) {
+                        showQuestion(questionIndex);
                     }
                 } else if (phase === 'envelope') {
                     openEnvelope();
                 }
             });
-
-            // 部分浏览器需要用户交互才能播放视频，点击 prompt 正好满足
         })();
     </script>
 </body>
