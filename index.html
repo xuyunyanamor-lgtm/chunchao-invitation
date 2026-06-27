@@ -102,7 +102,6 @@
 
         .question-line {
             position: absolute;
-            font-size: clamp(18px, 4.5vw, 28px);
             color: #fff7e0;
             text-align: center;
             letter-spacing: 3px;
@@ -115,14 +114,14 @@
             opacity: 1;
         }
 
-        /* 起始位置：都在下方中间，稍靠下 */
+        /* 起始位置统一 */
         .q1-start, .q2-start, .q3-start {
             top: 90%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
         }
 
-        /* 竖屏集中布局：左对齐居中，垂直间距均匀，避免切到底部 */
+        /* 竖屏集中布局 */
         .question-line.pos-top {
             top: 18%;
             left: 50%;
@@ -134,10 +133,20 @@
             transform: translate(-50%, -50%) rotate(1.5deg);
         }
         .question-line.pos-bot {
-            top: 70%;
+            top: 65%;               /* 提上来避免被切 */
             left: 50%;
-            transform: translate(-50%, -100%) rotate(-1deg);
-            font-size: clamp(20px, 5vw, 32px);
+            transform: translate(-50%, -50%) rotate(-1deg);
+        }
+
+        /* 个性化字号 */
+        .q1-big {
+            font-size: clamp(24px, 6vw, 36px);   /* 第一句放大 */
+        }
+        .q2-normal {
+            font-size: clamp(18px, 4.5vw, 28px); /* 第二句标准 */
+        }
+        .q3-small {
+            font-size: clamp(16px, 4vw, 24px);   /* 第三句缩小 */
         }
 
         /* 发光扫过效果 */
@@ -428,7 +437,7 @@
                 top: 43%;
             }
             .question-line.pos-bot {
-                top: 68%;
+                top: 62%;       /* 手机端再稍微上调 */
             }
         }
     </style>
@@ -453,9 +462,9 @@
 
     <!-- 三句质问 -->
     <div class="questions-stage" id="questionsStage">
-        <div class="question-line" id="q1">你想要锻炼自己的评委水平吗？</div>
-        <div class="question-line" id="q2">你也对评委奇怪的判准心生不满吗？</div>
-        <div class="question-line" id="q3">听完评委的话，觉得有很多想要回击的吗？</div>
+        <div class="question-line q1-big" id="q1">你想要锻炼自己的评委水平吗？</div>
+        <div class="question-line q2-normal" id="q2">你也对评委奇怪的判准心生不满吗？</div>
+        <div class="question-line q3-small" id="q3">听完评委的话，觉得有很多想要回击的吗？</div>
     </div>
 
     <!-- 信封容器 -->
@@ -551,21 +560,26 @@
                     if (index === 2) {
                         el.classList.remove('q3-start');
                         el.classList.add('pos-bot');
-                        // 三句就位后停留1800ms再进视频
-                        setTimeout(() => { startVideo(); }, 1800);
+                        // 停留 1.8 秒后进入视频阶段
+                        setTimeout(() => { prepareVideo(); }, 1800);
                     }
                 }, 100);
             }
 
-            function startVideo() {
+            function prepareVideo() {
                 if (phase !== 'questions') return;
                 phase = 'video';
+                // 先隐藏粒子和问题文字
                 particlesLayer.classList.remove('active');
                 questionsStage.classList.remove('active');
-                videoBg.classList.add('show');
-                bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
+                // 延迟一小段时间再显示视频，避免同时触发重绘造成卡顿
+                setTimeout(() => {
+                    videoBg.classList.add('show');
+                    bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
+                }, 200);
 
                 bgVideo.addEventListener('ended', onVideoEnded);
+                // 12 秒保护
                 setTimeout(() => {
                     if (phase === 'video') onVideoEnded();
                 }, 12000);
