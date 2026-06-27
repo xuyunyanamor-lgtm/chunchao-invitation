@@ -102,9 +102,6 @@
 
         .question-line {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
             font-size: clamp(20px, 5vw, 30px);
             color: #fff7e0;
             text-align: center;
@@ -116,6 +113,23 @@
         }
         .question-line.show {
             opacity: 1;
+        }
+
+        /* 三个句子各自的远处起始位置 */
+        .q1-start {
+            top: 90%;
+            left: 90%;
+            transform: translate(-50%, -50%) scale(0.6);
+        }
+        .q2-start {
+            top: 90%;
+            left: 10%;
+            transform: translate(-50%, -50%) scale(0.6);
+        }
+        .q3-start {
+            top: 15%;
+            left: 85%;
+            transform: translate(-50%, -50%) scale(0.6);
         }
 
         /* 活泼的不规则布局 */
@@ -133,7 +147,7 @@
             top: 78%;
             left: 42%;
             transform: translate(-50%, -100%) rotate(-2deg);
-            font-size: clamp(22px, 5.5vw, 34px); /* 第三句稍大，制造节奏感 */
+            font-size: clamp(22px, 5.5vw, 34px);
         }
 
         /* 发光扫过效果 */
@@ -191,7 +205,7 @@
             }
         }
 
-        /* ========== 信封容器（后续部分不变） ========== */
+        /* ========== 信封容器 ========== */
         .envelope-container {
             position: fixed;
             inset: 0;
@@ -525,19 +539,35 @@
             }
 
             function showQuestion(index) {
-                const el = [q1, q2, q3][index];
+                const els = [q1, q2, q3];
+                const el = els[index];
+
+                // 设置初始远处位置
+                if (index === 0) el.classList.add('q1-start');
+                if (index === 1) el.classList.add('q2-start');
+                if (index === 2) el.classList.add('q3-start');
+
+                // 显示（带远处小尺寸和透明度为0，.show会令opacity变1）
                 el.classList.add('show');
                 questionIndex = index + 1;
 
-                if (index === 0) {
-                    setTimeout(() => { el.classList.add('pos-top'); }, 1200);
-                } else if (index === 1) {
-                    setTimeout(() => { el.classList.add('pos-mid'); }, 1200);
-                } else if (index === 2) {
-                    setTimeout(() => { el.classList.add('pos-bot'); }, 1200);
-                    // 三句就位，稍作停留后进入视频
-                    setTimeout(() => { startVideo(); }, 1800);
-                }
+                // 100ms后移除起始位置类，添加目标位置类，触发弹跳
+                setTimeout(() => {
+                    if (index === 0) {
+                        el.classList.remove('q1-start');
+                        el.classList.add('pos-top');
+                    }
+                    if (index === 1) {
+                        el.classList.remove('q2-start');
+                        el.classList.add('pos-mid');
+                    }
+                    if (index === 2) {
+                        el.classList.remove('q3-start');
+                        el.classList.add('pos-bot');
+                        // 最后一句落定后，停留800ms进入视频
+                        setTimeout(() => { startVideo(); }, 1800);
+                    }
+                }, 100);
             }
 
             function startVideo() {
@@ -549,7 +579,7 @@
                 bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
 
                 bgVideo.addEventListener('ended', onVideoEnded);
-                // 12秒保护（视频10秒，留出缓冲）
+                // 12秒保护（视频约10秒）
                 setTimeout(() => {
                     if (phase === 'video') onVideoEnded();
                 }, 12000);
