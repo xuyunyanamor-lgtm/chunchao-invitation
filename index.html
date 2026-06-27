@@ -115,36 +115,26 @@
             opacity: 1;
         }
 
-        /* 三个句子各自的远处起始位置——也向竖屏中心靠拢 */
-        .q1-start {
-            top: 88%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.6);
-        }
-        .q2-start {
-            top: 88%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.6);
-        }
-        .q3-start {
-            top: 88%;
+        /* 起始位置：都在下方中间，稍靠下 */
+        .q1-start, .q2-start, .q3-start {
+            top: 90%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.6);
         }
 
-        /* 竖屏集中布局：左右向中心收紧，垂直三段式排列 */
+        /* 竖屏集中布局：左对齐居中，垂直间距均匀，避免切到底部 */
         .question-line.pos-top {
-            top: 22%;
+            top: 18%;
             left: 50%;
             transform: translate(-50%, 0) rotate(-2deg);
         }
         .question-line.pos-mid {
-            top: 48%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(1.5deg);
         }
         .question-line.pos-bot {
-            top: 74%;
+            top: 70%;
             left: 50%;
             transform: translate(-50%, -100%) rotate(-1deg);
             font-size: clamp(20px, 5vw, 32px);
@@ -432,13 +422,13 @@
                 max-height: 85vh;
             }
             .question-line.pos-top {
-                top: 20%;
+                top: 16%;
             }
             .question-line.pos-mid {
-                top: 46%;
+                top: 43%;
             }
             .question-line.pos-bot {
-                top: 72%;
+                top: 68%;
             }
         }
     </style>
@@ -561,7 +551,8 @@
                     if (index === 2) {
                         el.classList.remove('q3-start');
                         el.classList.add('pos-bot');
-                        setTimeout(() => { startVideo(); }, 800);
+                        // 三句就位后停留1800ms再进视频
+                        setTimeout(() => { startVideo(); }, 1800);
                     }
                 }, 100);
             }
