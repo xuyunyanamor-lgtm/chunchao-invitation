@@ -3,618 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>春潮杯 · 邀请函</title>
+    <title>春潮杯 · 赛事章程</title>
     <style>
         :root {
+            --deep-blue: #0b1e33;
             --gold: #c5a86a;
             --gold-light: #e0c87c;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            font-family: "Noto Serif SC", "华文楷体", "KaiTi", "楷体", "宋体", "SimSun", serif;
-            background: #021218;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            cursor: pointer;
+            margin: 0;
+            padding: 20px;
+            background: #021018;
+            font-family: "Noto Serif SC", "华文楷体", "楷体", "宋体", serif;
+            color: #d9e6f2;
         }
-
-        /* ========== 视频背景 ========== */
-        .video-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 1.2s ease;
+        .charter-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a1f33 0%, #05101e 100%);
+            border: 1px solid rgba(197,168,106,0.5);
+            border-radius: 16px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
         }
-        .video-bg.show {
-            opacity: 1;
-        }
-        .video-bg.fade-out {
-            opacity: 0;
-        }
-        .video-bg video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            pointer-events: none;
-        }
-
-        /* ========== 轻触开始提示 ========== */
-        .tap-prompt {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
-            transition: opacity 0.6s ease;
-        }
-        .tap-prompt.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .tap-prompt .prompt-text {
-            font-size: clamp(20px, 5vw, 30px);
-            color: #f7f3e6;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(207, 233, 229, 0.7), 0 4px 15px rgba(0, 0, 0, 0.6);
-            margin-bottom: 20px;
-            animation: gentlePulse 2s ease-in-out infinite;
-        }
-        .tap-prompt .prompt-icon {
-            font-size: 36px;
+        h1 {
+            text-align: center;
+            font-size: 28px;
             color: #e0c87c;
-            animation: floatIcon 2s ease-in-out infinite;
-        }
-        @keyframes gentlePulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-        @keyframes floatIcon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-
-        /* ========== 三句质问层 ========== */
-        .questions-stage {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-        .questions-stage.active {
-            opacity: 1;
-        }
-
-        .question-line {
-            position: absolute;
-            color: #fff7e0;
-            text-align: center;
-            letter-spacing: 3px;
-            text-shadow: 0 0 30px rgba(255, 215, 100, 0.8), 0 0 60px rgba(255, 180, 50, 0.5), 0 4px 15px rgba(0, 0, 0, 0.6);
-            opacity: 0;
-            white-space: nowrap;
-            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .question-line.show {
-            opacity: 1;
-        }
-
-        /* 起始位置统一 */
-        .q1-start, .q2-start, .q3-start {
-            top: 90%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.6);
-        }
-
-        /* 竖屏集中布局 */
-        .question-line.pos-top {
-            top: 18%;
-            left: 50%;
-            transform: translate(-50%, 0) rotate(-2deg);
-        }
-        .question-line.pos-mid {
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(1.5deg);
-        }
-        .question-line.pos-bot {
-            top: 65%;               /* 提上来避免被切 */
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-1deg);
-        }
-
-        /* 个性化字号 */
-        .q1-big {
-            font-size: clamp(24px, 6vw, 36px);   /* 第一句放大 */
-        }
-        .q2-normal {
-            font-size: clamp(18px, 4.5vw, 28px); /* 第二句标准 */
-        }
-        .q3-small {
-            font-size: clamp(16px, 4vw, 24px);   /* 第三句缩小 */
-        }
-
-        /* 发光扫过效果 */
-        .question-line::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    rgba(255, 255, 255, 0.4) 40%,
-                    rgba(255, 255, 255, 0.6) 50%,
-                    rgba(255, 255, 255, 0.4) 60%,
-                    transparent 100%);
-            animation: shimmer 1.5s ease-in-out infinite;
-            pointer-events: none;
-        }
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 120%; }
-        }
-
-        /* 背景粒子 */
-        .particles {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-        .particles.active {
-            opacity: 1;
-        }
-        .particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #ffd97a;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffc850, 0 0 20px #ffb830;
-            animation: particleFloat 4s ease-in-out infinite;
-        }
-        @keyframes particleFloat {
-            0% {
-                transform: translateY(0) translateX(0) scale(1);
-                opacity: 0;
-            }
-            20% { opacity: 1; }
-            100% {
-                transform: translateY(-120vh) translateX(40px) scale(0.3);
-                opacity: 0;
-            }
-        }
-
-        /* ========== 信封容器 ========== */
-        .envelope-container {
-            position: fixed;
-            inset: 0;
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        .envelope-container.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .envelope-stage {
-            position: relative;
-            width: min(580px, 90vw);
-            max-height: 90vh;
-            overflow-y: auto;
-            transition: all 0.4s ease;
-            border-radius: 12px;
-            scrollbar-width: thin;
-            scrollbar-color: #b49460 #f5f0e6;
-        }
-        .envelope-stage::-webkit-scrollbar {
-            width: 6px;
-        }
-        .envelope-stage::-webkit-scrollbar-track {
-            background: #f5f0e6;
-            border-radius: 12px;
-        }
-        .envelope-stage::-webkit-scrollbar-thumb {
-            background: #b49460;
-            border-radius: 12px;
-        }
-
-        /* 封面 */
-        .cover-panel {
-            position: relative;
-            z-index: 4;
-            background: linear-gradient(145deg, #2b2f3a 0%, #1c1f28 100%);
-            border: 2px solid var(--gold);
-            border-radius: 12px;
-            padding: 50px 30px;
-            text-align: center;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.7s ease;
-            pointer-events: auto;
-            cursor: pointer;
-        }
-        .cover-panel::before {
-            content: "";
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            bottom: 12px;
-            border: 1px solid rgba(197, 168, 106, 0.35);
-            border-radius: 6px;
-            pointer-events: none;
-        }
-        .seal-icon {
-            font-size: 48px;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(197,168,106,0.5);
             margin-bottom: 20px;
-            color: var(--gold);
-            letter-spacing: 4px;
         }
-        .title-main {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--gold-light);
-            letter-spacing: 8px;
-            margin-bottom: 8px;
+        h2 {
+            font-size: 20px;
+            color: #c5d5e8;
+            margin: 25px 0 12px;
+            border-left: 4px solid #c5a86a;
+            padding-left: 12px;
         }
-        .title-sub {
-            font-size: 18px;
-            color: #b8a67c;
-            letter-spacing: 6px;
-            margin-bottom: 28px;
-            border-top: 1px solid rgba(197, 168, 106, 0.4);
-            border-bottom: 1px solid rgba(197, 168, 106, 0.4);
-            display: inline-block;
-            padding: 6px 20px;
-        }
-        .hint-text {
-            font-size: 15px;
-            color: #8e8e8e;
-            letter-spacing: 3px;
-            margin-top: 12px;
-            animation: hintPulse 2s infinite;
-        }
-        @keyframes hintPulse {
-            0% { opacity: 0.45; }
-            50% { opacity: 0.9; }
-            100% { opacity: 0.45; }
-        }
-        .sender-line {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #9b9b9b;
-            letter-spacing: 2px;
-        }
-
-        /* 信纸 */
-        .letter-panel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #fdf8f0;
-            border: 2px solid #b49460;
-            border-radius: 12px;
-            padding: 40px 32px 32px;
-            color: #3e3322;
-            line-height: 1.9;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            z-index: 3;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-        }
-        .letter-panel::before {
-            content: "";
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            bottom: 20px;
-            border: 1px dashed #dac29c;
-            border-radius: 6px;
-            pointer-events: none;
-            opacity: 0.5;
-        }
-        .header-logo {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #7a5a3a;
-            letter-spacing: 4px;
-            margin-bottom: 14px;
-            position: relative;
-            z-index: 1;
-        }
-        .salute {
+        h3 {
             font-size: 17px;
-            margin-bottom: 18px;
-            position: relative;
-            z-index: 1;
+            color: #b0c7dd;
+            margin: 18px 0 8px;
         }
-        .content-block {
+        p {
+            line-height: 1.8;
             font-size: 15px;
-            text-align: justify;
-            position: relative;
-            z-index: 1;
-            flex: 1;
-        }
-        .content-block p {
-            margin-bottom: 12px;
             text-indent: 2em;
+            margin-bottom: 10px;
         }
-        .feature-title {
-            font-weight: bold;
-            color: #5e3e1c;
-            margin-top: 10px;
-            margin-bottom: 4px !important;
-            text-indent: 2em;
+        ul {
+            margin-left: 2em;
+            list-style-type: circle;
         }
-        .closing {
-            margin-top: 20px;
-            text-align: right;
-            font-size: 15px;
-            position: relative;
-            z-index: 1;
+        li {
+            margin-bottom: 6px;
+            font-size: 14px;
         }
-        .closing .signature {
-            margin-top: 12px;
-            font-weight: bold;
-            color: #5e3e1c;
-        }
-
-        /* 打开状态 */
-        .envelope-stage.opened .cover-panel {
-            position: absolute;
-            top: 0;
-            left: 0;
+        table {
             width: 100%;
-            transform: translateY(-120%);
-            opacity: 0;
-            pointer-events: none;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
         }
-        .envelope-stage.opened .letter-panel {
-            position: relative;
-            opacity: 1;
-            pointer-events: auto;
+        th {
+            background: #1e3a5f;
+            color: #e0c87c;
+            padding: 8px 6px;
+            border: 1px solid rgba(197,168,106,0.3);
         }
-
-        @media (max-width: 500px) {
-            .cover-panel {
-                padding: 30px 20px;
-                min-height: 340px;
-            }
-            .title-main {
-                font-size: 26px;
-                letter-spacing: 4px;
-            }
-            .letter-panel {
-                padding: 25px 18px 20px;
-                min-height: auto;
-            }
-            .content-block {
-                font-size: 14px;
-            }
-            .envelope-stage {
-                max-height: 85vh;
-            }
-            .question-line.pos-top {
-                top: 16%;
-            }
-            .question-line.pos-mid {
-                top: 43%;
-            }
-            .question-line.pos-bot {
-                top: 62%;       /* 手机端再稍微上调 */
-            }
+        td {
+            padding: 6px;
+            border: 1px solid rgba(197,168,106,0.25);
+            text-align: center;
+            color: #d0dbe8;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #7a8a9a;
         }
     </style>
 </head>
 <body>
-    <!-- 粒子层 -->
-    <div class="particles" id="particlesLayer"></div>
+    <div class="charter-container">
+        <h1>春潮杯辩论友谊赛完整章程</h1>
 
-    <!-- 视频背景 -->
-    <div class="video-bg" id="videoBg">
-        <video id="bgVideo" muted playsinline preload="auto">
-            <source src="invite.mp4" type="video/mp4">
-            您的浏览器不支持视频背景。
-        </video>
+        <h2>第一章 总则与宗旨</h2>
+        <h3>第一条 赛事名称</h3>
+        <p>本赛事定名为“春潮杯”辩论友谊赛，以下简称本赛事。</p>
+        <h3>第二条 办赛宗旨</h3>
+        <p>搭建校内辩手交流切磋平台，活跃校内辩论氛围。以辩会友、增进交流，提升全体参与者辩论实战与评判能力，贯彻和平辩论，友好竞技核心宗旨。</p>
+        <h3>第三条 办赛四大原则</h3>
+        <p>和谐友爱、公开公正、双向锻炼、跨院协作。</p>
+        <h3>第四条 适用范围</h3>
+        <p>本章程约束赛事筹备、报名组队、赛程对战、赛后评议、赛事总结全流程，全体参赛辩手、评委、组委会工作人员均须遵守。</p>
+
+        <h2>第二章 组织架构与责任分工</h2>
+        <h3>第五条 赛事组委</h3>
+        <p>联合主办学院 工程学院、经济学院、海德学院、外国语学院<br>
+        赛事发起人 万丛嘉、赵家乐<br>
+        联合发起人 沈若语、肖苏然、杨美晨、曾德灏</p>
+        <h3>第六条 组委会下设四大工作组</h3>
+        <p>1. 赛务部：负责辩题设计、辩题库整理、辩题相关疑问受理，统筹赛程、赛制。<br>
+        2. 评委部：负责评委与主计人员的邀请、联系与确认。<br>
+        3. 联络部：搭建参赛沟通群，完成日常通知、人员对接、消息同步等。<br>
+        4. 组织部：负责分组事宜，统筹队伍混合组队、人员调配，并公示最终分组名单。</p>
+        <h3>第七条 管理机制</h3>
+        <p>各组组长由组委会协商选定，对本组工作全权负责，定期向组委会同步工作进度；组内职责交叉或衔接事项由组委会统一协调。</p>
+        <h3>第八条 架构调整权限</h3>
+        <p>组委会保留对组织架构作必要调整的权利，调整方案须经各组组长协商一致后，统一公示告知全体人员。</p>
+
+        <h2>第三章 参赛队伍与辩手资格</h2>
+        <h3>第九条 参赛人员限制</h3>
+        <p>本赛事为“限制级”赛事，参赛辩手与评委原则上均需2025级在校本科生，此举旨在为同级学生提供专属实战、评裁锻炼空间。</p>
+        <h3>第十条 组队规则—一带一模式</h3>
+        <p>1. 组队模式：由两名不同学院辩手作为牵头人，各带领本院一名辩手组成四人队伍，鼓励跨院组队，以促进各学院辩手相互熟悉、积极协作；<br>
+        2. 报名辩手可在报名截止前联系组委或本院领队表达参赛意愿，经组队组统筹编排后，最终分组名单统一公布。</p>
+        <h3>第十一条 亦辩亦评原则</h3>
+        <p>所有报名参赛辩手，原则上均需承担对应场次评委工作，参与赛后述票及评议环节，落实双向锻炼办赛目标。</p>
+        <h3>第十二条 人员不足协调方案</h3>
+        <p>若学院报名人数不足，无法满足标准一带一组队要求，可由组委会酌情协调跨院补齐名额，或经全体参赛人员同意后调整组队规则，具体情形另行通知。</p>
+        <h3>第十三条 未尽事宜解释权</h3>
+        <p>本章未提及的组队、资格相关问题，由组委会另行解释说明。</p>
+
+        <h2>第四章 赛程安排和赛制规则</h2>
+        <h3>第十四条 赛事整体基础设定</h3>
+        <p>1. 参赛规模：总计6支队伍，赛前抽签获得1–6号编号；<br>
+        2. 赛事形式：纯小组赛积分制，无淘汰赛，共4轮正式比赛，每支队伍固定出战次数，全部赛事结束后按积分排序决出1–6名；<br>
+        3. 总场次：每轮同步开展3场比赛，共4轮，合计12场正式比赛。</p>
+        <h3>第十五条 对战公平规则</h3>
+        <p>1. 对阵规则：每队4场对战4支不同队伍；<br>
+        2. 双持方平衡机制：设置辩题A、辩题B两道辩题，每支队伍针对两道辩题各持正方1次、反方1次，抵消辩题天然倾向性；</p>
+        <h3>第十六条 四轮完整对阵总表</h3>
+        <table>
+            <thead><tr><th>轮次</th><th>使用辩题</th><th>赛场1（正方VS反方）</th><th>赛场2（正方VS反方）</th><th>赛场3（正方VS反方）</th></tr></thead>
+            <tbody>
+                <tr><td>第一轮</td><td>辩题A</td><td>1 vs 6</td><td>2 vs 5</td><td>3 vs 4</td></tr>
+                <tr><td>第二轮</td><td>辩题B</td><td>1 vs 5</td><td>6 vs 4</td><td>2 vs 3</td></tr>
+                <tr><td>第三轮</td><td>辩题A</td><td>4 vs 1</td><td>5 vs 3</td><td>6 vs 2</td></tr>
+                <tr><td>第四轮</td><td>辩题B</td><td>3 vs 1</td><td>4 vs 2</td><td>5 vs 6</td></tr>
+            </tbody>
+        </table>
+        <h3>第十七条 积分与排名规则</h3>
+        <p>1. 单场基础积分<br>获胜队伍：积3分<br>落败队伍：积1分<br>弃权、严重违规被判负：积0分，本场计票全部清零<br>
+        2. 名次判定优先级（从前至后依次比对）<br>① 总积分，积分越高排名越靠前；<br>② 累计总得票数，积分相同总票数多者靠前；<br>③ 净胜票数（单场得票-失票累加），数值越高排名越靠前；<br>④ 累计原始票数（忽略辩手评分）；<br>⑤ 直接交手胜负：仅两队同分且存在对战记录，交手胜者排名优先；<br>⑥ 队伍最佳辩手累计次数，次数更多者靠前；<br>⑦ 全部规则无法区分名次，则两队共享排名。<br>
+        3. 最佳辩手评选<br>每场配置3–5名评委，每位评委有三票佳辩票，票数最高者当选；最佳辩手票数持平，由本场评委现场商议确定。</p>
+
+        <h2>第五章 比赛流程和规则</h2>
+        <h3>第十八条 全场比赛共7个正式辩论环节</h3>
+        <p>环节三、五之间设置2分钟中场暂停；各核心大环节结束开放奇袭申请，全部辩论结束后进入赛后评议环节八。</p>
+        <p><strong>环节一：立论与首轮盘问</strong><br>1. 正方一辩立论：3分钟<br>2. 反方四辩盘问正方一辩：1分30秒，单边计时，盘问方可打断，被盘问方不可反问<br>3. 反方一辩立论：3分钟<br>4. 正方四辩盘问反方一辩：1分30秒，规则同上</p>
+        <p><strong>环节二：申论与二辩对辩</strong><br>1. 正方二辩申论：2分钟<br>2. 反方二辩申论：2分钟<br>3. 双方二辩对辩：双方各1分30秒，正方先发言；交替发言，全程禁止打断，一方时间耗尽另一方可继续发言至时长用完</p>
+        <p><strong>环节三：三辩盘问</strong><br>1. 正方三辩盘问：2分钟，可指定反方一/二/四辩作答，单边计时、可打断、不可反问<br>2. 反方三辩盘问：2分钟，可指定正方一/二/四辩作答，规则同上</p>
+        <p><strong>环节四：中场暂停</strong><br>全场统一暂停2分钟，双方队内讨论</p>
+        <p><strong>环节五：盘问小结</strong><br>1. 正方三辩盘问小结：1分30秒<br>2. 反方三辩盘问小结：1分30秒</p>
+        <p><strong>环节六：自由辩论</strong><br>双方各4分钟计时，正方率先发言；发言结束落座即切换对方计时；同方辩手发言顺序、次数不限；一方时间耗尽，另一方可连续发言至时长用尽；全程禁止打断对方发言。</p>
+        <p><strong>环节七：总结陈词</strong><br>1. 反方四辩总结：3分30秒<br>2. 正方四辩总结：3分30秒</p>
+        <p><strong>环节八：评委述票、全场自由讨论、选手评价</strong><br>1. 评委依次阐述评判标准、投票逻辑与理由；<br>2. 全体辩手、评委围绕本场比赛内容和评委述票开展自由交流讨论；<br>3. 参赛辩手针对评委判准、述票内容提出疑问与反馈评价。</p>
+        <h3>第十九条 奇袭通用规则</h3>
+        <p>1. 申请节点：环节一、二、三、五、六结束后可申请奇袭；<br>2. 使用限制：单支队伍全场仅可使用1次奇袭，可选质询/申论，使用后后续不再具备奇袭资格；<br>3. 双方同时申请判定规则：赛前双方提交数字，两数相加为奇数则正方优先选择奇袭形式，偶数则反方优先；仅单方申请则直接执行；<br>4. 执行标准：两种奇袭时长均1分30秒；奇袭质询为单边计时，质询方可打断，被质询方不可反问，被质询方自主指定队内一人接质询。三、盘问计时统一通则<br>所有盘问类环节（首轮四辩盘问、三辩盘问、奇袭质询）均为单边计时，仅统计质询方发言时长，被质询方回答不占用质询时间。</p>
+
+        <h2>第六章 评委构成与评分机制</h2>
+        <h3>第二十条 评委构成</h3>
+        <p>1. 主体来源：参赛25级辩手兼任本场评委，实现亦辩亦评双向锻炼；所有参赛辩手必须参与对应场次述票、评议、互评。<br>2. 补充机制：单场评委人数不足时，组委会可额外邀请其他25级辩手参与讨论，保障评议质量。<br>3. 评委核心职责<br>秉持中立公平原则，依据赛事评分标准独立投票、完整述票；<br>参与赛后公开讨论，客观提出比赛、评判相关观点；<br>沟通中尊重辩手发言，不得凭借评委身份压制不同观点，理性沟通。</p>
+        <h3>第二十一条 完整评分与述票三步流程</h3>
+        <p><strong>1. 第一轮：评委投票与述票（四票制设定）</strong><br>比赛结束后，由担任本场评委的辩手依据场上表现先行判定并进行述票。评委手中共有四张票：<br>印象票（2分）：主要看论点。例如：看论点的立意和呈现。例如：若正方提出的属于基础常规论点，而反方论点体现和表达得更好，则将印象票投给反方。<br>环节票（2分）：主要看攻防和论证义务完成度。例如：虽然正方提出的论点很新颖、很有意思，但是在攻防推进上表现不佳，则环节票给到反方。<br>总结票（4分）：主要看判罚理由是否贴合评委给出的判准。不论评委使用的是何种裁判方法，评委均需在述票中清晰阐述自己的裁判标准，并将整场比赛的交锋套用进去，看谁更符合该标准，从而决定总结票归属。<br>商讨票（1分）：在完成第一轮述票、经过后续辩手与评委的充分自由讨论后，最终投出的共识商讨票（商讨票不设权重划分）。<br>注：印象票（2分）、环节票（2分）、总结票（4分）与商讨票（1分）合计总分共计9分，可确保每位评委输出的总判定分为单数，避免出现绝对平局。</p>
+        <p><strong>2. 第二轮：辩手互评与评委权重核算</strong><br>所有参赛辩手需针对本场评委的述票质量、投票逻辑清晰度、点评专业性进行评分。辩手将基于以下两个核心标准给评委打分：<br>标准一：场上情况的把握程度（判准把握度）：指评委对本场比赛双方论点、推论、攻防等场上实际情况的述评清晰度或准确度。<br>标准二：裁判标准的合理程度（判准合理度）：指评委给出的判罚标准、逻辑以及价值判准的合理性。主席结合辩手给出的档位评分结果，核算评委的印象票、环节票和总结票的实际计分权重（商讨票不进行权重划分）。</p>
+        <p><strong>3. 第三轮：公开讨论与共识复盘</strong><br>投票结果公布后，设置不限时自由讨论环节；辩手与评委可针对比赛中的争议点、数据疑点、评判逻辑进行坦率交流，辩手可补充说明比赛中未尽表达的观点，评委也可进一步阐述评判依据；讨论环节旨在消解信息差、澄清评判逻辑，帮助辩手与评委双向成长，不改变本场比赛结果，最终以理性沟通推动对辩题与辩论本身的深度理解。</p>
+        <h3>第二十二条 讨论礼仪规范</h3>
+        <p>所有人员禁止人身攻击、情绪化指责，沟通仅围绕论点、逻辑、评判标准展开。注：讨论环节不影响本场比赛胜负判定。</p>
+
+        <h2>第七章 奖项设置</h2>
+        <h3>第二十三条</h3>
+        <p>赛事注重“以辩促学、双向成长”，奖项设置以激励参与、认可付出为原则，相关规则如下：<br>1. 参赛电子证明发放规则：完成报名、全程参与签到、正式比赛、赛后评议全流程的辩手，统一发放官方电子参赛证明；无故缺席、违反赛事纪律人员不予发放。<br>2. 特色奖项规划：组委会可根据参赛规模、活动效果、预算增设单场最佳辩手等特色奖项，具体评选细则、奖励内容另行发布补充通知。<br>3. 赛事组委会保留对奖项设置、证明发放规则的最终解释权与调整权。</p>
+
+        <h2>第八章 申诉机制和违规处理办法</h2>
+        <h3>第二十四条 申诉机制</h3>
+        <p>本赛事不开放赛果申诉通道，当场比赛胜负、票数结果以本场评委投票为准，讨论、反馈不改变既定赛果。</p>
+        <h3>第二十五条 信息造假、违规换人处置</h3>
+        <p>1. 队伍报名信息必须真实准确，年级、个人信息不得造假；<br>2. 更换上场队员必须提前向组委会提交申请登记；<br>3. 严禁冒充队员、代打参赛，一经查实按严重违规判负处理。</p>
+        <h3>第二十六条 言语攻击类违规</h3>
+        <p>比赛场内、赛后公屏、公开讨论环节，不得使用侮辱、攻击性语言攻击对手或评委，违规人员组委会视情节扣分、警告。</p>
+        <h3>第二十七条 迟到、缺勤、弃赛处理</h3>
+        <p>1. 开赛迟到5分钟以内：扣除队伍对应积分；迟到10分钟仍未到场，直接判本场负，扣除半数小组赛积分；<br>2. 无故弃赛、未提前24小时沟通调整赛程：本场直接判负，扣除对应积分。</p>
+
+        <h2>第九章 附则</h2>
+        <h3>第二十八条 设备突发免责</h3>
+        <p>比赛途中选手设备故障干扰赛程，主办方不承担调整比赛结果的责任。</p>
+        <h3>第二十九条 赛程调整要求</h3>
+        <p>如需调整比赛时间，必须双方队伍协商一致，提前24小时告知组委会，并附上双方协商记录，经组委确认后方可调整。</p>
+        <h3>第三十条 组委会调整权限</h3>
+        <p>组委会有权对本章程内容进行合理修订调整，选手报名参赛即代表完全同意遵守本章程全部条款。</p>
+        <h3>第三十一条 最终解释权</h3>
+        <p>本章程全部内容、配套表单、赛事规则的最终解释权归春潮杯赛事组委会所有。</p>
+
+        <div class="footer-note">春潮杯赛事组委会 · 丙午年夏</div>
     </div>
-
-    <!-- 轻触开始提示 -->
-    <div class="tap-prompt" id="tapPrompt">
-        <div class="prompt-text">轻触开始</div>
-        <div class="prompt-icon">▼</div>
-    </div>
-
-    <!-- 三句质问 -->
-    <div class="questions-stage" id="questionsStage">
-        <div class="question-line q1-big" id="q1">你想要锻炼自己的评委水平吗？</div>
-        <div class="question-line q2-normal" id="q2">你也对评委奇怪的判准心生不满吗？</div>
-        <div class="question-line q3-small" id="q3">听完评委的话，觉得有很多想要回击的吗？</div>
-    </div>
-
-    <!-- 信封容器 -->
-    <div class="envelope-container" id="envelopeContainer">
-        <div class="envelope-stage" id="envelopeStage">
-            <div class="cover-panel" id="coverPanel">
-                <div class="seal-icon">⚜️</div>
-                <div class="title-main">春潮杯</div>
-                <div class="title-sub">辩论友谊赛</div>
-                <div style="font-size:15px; color:#b8a67c; letter-spacing:3px; margin-bottom:5px;">邀请函</div>
-                <div class="hint-text">— 轻触开启 —</div>
-                <div class="sender-line">赛事筹备组 · 丙午年夏</div>
-            </div>
-            <div class="letter-panel" id="letterPanel">
-                <div class="header-logo">⚓ 中国海洋大学 · 春潮杯 ⚓</div>
-                <div class="salute">各院辩友雅鉴：</div>
-                <div class="content-block">
-                    <p>海风送夏，以辩会友。赛事筹备组现拟于暑假期间，举行“春潮杯”辩论友谊赛。赛事为限制级，仅面向25级同学，诚邀贵院同学参与。</p>
-                    <p>本次赛事设两项特色规程：</p>
-                    <p class="feature-title">其一，评分方式倒反天罡。</p>
-                    <p>赛后评委先行述票，暂不公布投票结果；随后由辩手就述票质量进行评分，依此权衡评委票数权重。分数公布后，设不限时自由讨论环节，凡涉评判之疑义，皆可坦率切磋、畅所欲言。此举意在使辩手得尽未申之意，亦使评委于实战反馈中磨砺判准，可谓双向锻炼。</p>
-                    <p class="feature-title">其二，推行混合组队制。</p>
-                    <p>基本采用“一带一”模式，由分属不同学院之二位辩手牵头，各携本院一人，合为四人一队。跨院协作，以辩会友，俾使各院同学消弭隔阂，日相亲善。</p>
-                    <p>赛事之旨，非争高下，而在聚合。唯愿海大辩手咸集于此，不以院墙为界，但以辩才相交。切磋之余，情谊自生；交锋之后，隔阂自消。团结海大辩手，共兴思辨之风，是所望也。</p>
-                </div>
-                <div class="closing">
-                    <p>顺颂时祺，恭候佳音。</p>
-                    <p class="signature">赛事筹备组 谨启</p>
-                    <p style="font-size:13px; color:#7a6a50;">丙午年夏</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        (function() {
-            // 粒子生成
-            const particlesLayer = document.getElementById('particlesLayer');
-            for (let i = 0; i < 30; i++) {
-                const p = document.createElement('div');
-                p.classList.add('particle');
-                p.style.left = Math.random() * 90 + '%';
-                p.style.top = 60 + Math.random() * 40 + '%';
-                p.style.animationDelay = Math.random() * 3 + 's';
-                p.style.animationDuration = 3 + Math.random() * 5 + 's';
-                p.style.width = p.style.height = (3 + Math.random() * 6) + 'px';
-                particlesLayer.appendChild(p);
-            }
-
-            const bgVideo = document.getElementById('bgVideo');
-            const videoBg = document.getElementById('videoBg');
-            const tapPrompt = document.getElementById('tapPrompt');
-            const questionsStage = document.getElementById('questionsStage');
-            const envelopeContainer = document.getElementById('envelopeContainer');
-            const envelopeStage = document.getElementById('envelopeStage');
-
-            const q1 = document.getElementById('q1');
-            const q2 = document.getElementById('q2');
-            const q3 = document.getElementById('q3');
-
-            let phase = 'prompt';
-            let questionIndex = 0;
-
-            function startExperience() {
-                if (phase !== 'prompt') return;
-                phase = 'questions';
-                tapPrompt.classList.add('hidden');
-                particlesLayer.classList.add('active');
-                questionsStage.classList.add('active');
-                setTimeout(() => showQuestion(0), 400);
-            }
-
-            function showQuestion(index) {
-                const els = [q1, q2, q3];
-                const el = els[index];
-
-                if (index === 0) el.classList.add('q1-start');
-                if (index === 1) el.classList.add('q2-start');
-                if (index === 2) el.classList.add('q3-start');
-
-                el.classList.add('show');
-                questionIndex = index + 1;
-
-                setTimeout(() => {
-                    if (index === 0) {
-                        el.classList.remove('q1-start');
-                        el.classList.add('pos-top');
-                    }
-                    if (index === 1) {
-                        el.classList.remove('q2-start');
-                        el.classList.add('pos-mid');
-                    }
-                    if (index === 2) {
-                        el.classList.remove('q3-start');
-                        el.classList.add('pos-bot');
-                        // 停留 1.8 秒后进入视频阶段
-                        setTimeout(() => { prepareVideo(); }, 1800);
-                    }
-                }, 100);
-            }
-
-            function prepareVideo() {
-                if (phase !== 'questions') return;
-                phase = 'video';
-                // 先隐藏粒子和问题文字
-                particlesLayer.classList.remove('active');
-                questionsStage.classList.remove('active');
-                // 延迟一小段时间再显示视频，避免同时触发重绘造成卡顿
-                setTimeout(() => {
-                    videoBg.classList.add('show');
-                    bgVideo.play().catch(e => console.log('视频播放需要用户交互，已自动触发'));
-                }, 200);
-
-                bgVideo.addEventListener('ended', onVideoEnded);
-                // 12 秒保护
-                setTimeout(() => {
-                    if (phase === 'video') onVideoEnded();
-                }, 12000);
-            }
-
-            function onVideoEnded() {
-                if (phase !== 'video') return;
-                bgVideo.removeEventListener('ended', onVideoEnded);
-                phase = 'envelope';
-                videoBg.classList.add('fade-out');
-                setTimeout(() => {
-                    videoBg.classList.remove('show', 'fade-out');
-                    envelopeContainer.classList.add('visible');
-                }, 800);
-            }
-
-            function openEnvelope() {
-                if (phase !== 'envelope') return;
-                phase = 'opened';
-                envelopeStage.classList.add('opened');
-                envelopeStage.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-
-            document.body.addEventListener('click', function(e) {
-                if (phase === 'prompt') {
-                    startExperience();
-                } else if (phase === 'questions') {
-                    if (questionIndex < 3) {
-                        showQuestion(questionIndex);
-                    }
-                } else if (phase === 'envelope') {
-                    openEnvelope();
-                }
-            });
-        })();
-    </script>
 </body>
 </html>
