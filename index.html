@@ -7,10 +7,8 @@
     <style>
         :root {
             --deep-blue: #0b1e33;
-            --mid-blue: #1a3550;
             --gold: #c5a86a;
             --gold-light: #e0c87c;
-            --white: #eef5ff;
         }
 
         * {
@@ -28,10 +26,10 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             cursor: pointer;
-            color: var(--white);
+            color: #eef5ff;
         }
 
-        /* 全局微光粒子 */
+        /* 背景粒子 */
         #particles-global {
             position: fixed;
             inset: 0;
@@ -43,104 +41,140 @@
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             box-shadow: 0 0 10px rgba(200, 220, 255, 0.4);
-            animation: floatUpGlobal linear infinite;
+            animation: floatUp linear infinite;
             opacity: 0;
         }
-        @keyframes floatUpGlobal {
+        @keyframes floatUp {
             0% { transform: translateY(0) scale(0.8); opacity: 0; }
             20% { opacity: 0.6; }
             90% { opacity: 0; }
             100% { transform: translateY(-110vh) scale(0.2); opacity: 0; }
         }
 
-        /* ========== 阶段1：初始信封封面 ========== */
-        .stage {
+        /* ========== 阶段1：信封容器 ========== */
+        .envelope-stage {
             position: fixed;
             inset: 0;
             z-index: 5;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.8s ease;
-            opacity: 1;
-            pointer-events: auto;
+            transition: opacity 0.6s;
         }
-        .stage.hidden {
+        .envelope-stage.hidden {
             opacity: 0;
             pointer-events: none;
         }
 
-        .envelope-cover {
+        .envelope-wrapper {
             position: relative;
             width: min(500px, 85vw);
-            min-height: 350px;
-            background: linear-gradient(145deg, #162b40, #0b1a2b);
-            border: 2px solid var(--gold);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.6s;
-            cursor: pointer;
-            transform-origin: right bottom;
+            height: 380px;
+            perspective: 1200px;
         }
-        .envelope-cover::before {
+
+        /* 信封主体（长方形） */
+        .envelope-body {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 85%;
+            background: linear-gradient(145deg, #1e3448, #0f1f30);
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(197,168,106,0.1);
+            z-index: 2;
+        }
+        .envelope-body::after {
             content: "";
             position: absolute;
-            inset: 10px;
-            border: 1px solid rgba(197,168,106,0.3);
-            border-radius: 8px;
+            inset: 6px;
+            border: 1px solid rgba(197,168,106,0.25);
+            border-radius: 2px;
             pointer-events: none;
         }
-        .seal-icon {
-            font-size: 42px;
-            margin-bottom: 18px;
-            color: var(--gold);
-            filter: drop-shadow(0 0 6px rgba(197,168,106,0.7));
+
+        /* 三角形翻盖 */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(135deg, #243b50, #162433);
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            border: 2px solid var(--gold);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            transform-origin: top center;
+            transform: rotateX(0deg);
+            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            z-index: 3;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
-        .cover-title {
-            font-size: 34px;
-            font-weight: 700;
-            color: var(--gold-light);
-            letter-spacing: 8px;
-            margin-bottom: 8px;
-            text-shadow: 0 0 20px rgba(197,168,106,0.4);
+        /* 打开状态：向上翻平 */
+        .envelope-flap.open {
+            transform: rotateX(-180deg);
         }
-        .cover-subtitle {
+
+        /* 邮戳（圆形，位于翻盖与主体连接处中央） */
+        .postmark {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #fff7e0, #c5a86a);
+            border: 3px solid #b8944a;
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3e2e1a;
             font-size: 18px;
-            color: #b8a67c;
-            letter-spacing: 5px;
-            border-top: 1px solid rgba(197,168,106,0.4);
-            border-bottom: 1px solid rgba(197,168,106,0.4);
-            padding: 6px 18px;
-            display: inline-block;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.6s, opacity 0.6s;
+            animation: postmarkPulse 2s infinite;
         }
-        .hint-tap {
-            margin-top: 28px;
-            font-size: 16px;
-            color: #7a8a9a;
-            letter-spacing: 3px;
-            animation: softPulse 2s infinite;
+        @keyframes postmarkPulse {
+            0%, 100% { box-shadow: 0 0 10px #c5a86a; }
+            50% { box-shadow: 0 0 25px #e0c87c; }
         }
-        @keyframes softPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.9; }
-        }
-
-        /* 掀开动画：从右下角翻起，同时虚化消失 */
-        .envelope-cover.opened {
-            transform: rotateX(-130deg) rotateY(10deg);
-            opacity: 0.3;
+        /* 邮戳点击后缩小淡出 */
+        .postmark.opened {
+            transform: translate(-50%, -50%) scale(0.3);
+            opacity: 0;
             pointer-events: none;
         }
 
-        /* ========== 阶段2：梦境虚化背景 ========== */
+        /* 信封内部文字（初始隐藏） */
+        .envelope-inside {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            font-size: 16px;
+            color: #b8a67c;
+            letter-spacing: 3px;
+            opacity: 0;
+            transition: opacity 0.5s 0.5s;
+        }
+        .envelope-inside.show {
+            opacity: 1;
+        }
+
+        /* ========== 阶段2：梦境 + 三句质问 ========== */
         .dream-layer {
             position: fixed;
             inset: 0;
-            z-index: 3;
+            z-index: 4;
             background: radial-gradient(circle at 50% 30%, #0a2640 0%, #020d18 90%);
             backdrop-filter: blur(8px);
             opacity: 0;
@@ -177,7 +211,6 @@
             100% { transform: translateY(-80vh) translateX(30px); opacity: 0; }
         }
 
-        /* 三句质问 */
         .questions-container {
             position: relative;
             z-index: 4;
@@ -189,7 +222,7 @@
         }
         .question-line {
             position: absolute;
-            font-size: clamp(20px, 5vw, 32px);
+            font-size: clamp(20px, 5vw, 30px);
             color: #fff7e0;
             text-align: center;
             letter-spacing: 3px;
@@ -204,12 +237,12 @@
             opacity: 1;
         }
 
-        /* 三个句子的起始远处位置 */
+        /* 起始斜方向位置 */
         .q1-start { top: 90%; left: 90%; transform: translate(-50%, -50%) scale(0.5); }
         .q2-start { top: 90%; left: 10%; transform: translate(-50%, -50%) scale(0.5); }
         .q3-start { top: 15%; left: 85%; transform: translate(-50%, -50%) scale(0.5); }
 
-        /* 竖屏集中布局，带轻微旋转 */
+        /* 最终落点（不规则但集中） */
         .pos-top {
             top: 22%;
             left: 50%;
@@ -242,8 +275,12 @@
         .continue-hint.show {
             opacity: 1;
         }
+        @keyframes softPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+        }
 
-        /* ========== 邀请函封面（第二阶段信封） ========== */
+        /* ========== 阶段3：邀请函封面 ========== */
         .invite-cover-stage {
             position: fixed;
             inset: 0;
@@ -282,7 +319,38 @@
             pointer-events: none;
         }
 
-        /* ========== 邀请函正文（信纸） ========== */
+        .seal-icon {
+            font-size: 42px;
+            margin-bottom: 18px;
+            color: var(--gold);
+            filter: drop-shadow(0 0 6px rgba(197,168,106,0.7));
+        }
+        .cover-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--gold-light);
+            letter-spacing: 8px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(197,168,106,0.4);
+        }
+        .cover-subtitle {
+            font-size: 18px;
+            color: #b8a67c;
+            letter-spacing: 5px;
+            border-top: 1px solid rgba(197,168,106,0.4);
+            border-bottom: 1px solid rgba(197,168,106,0.4);
+            padding: 6px 18px;
+            display: inline-block;
+        }
+        .hint-tap {
+            margin-top: 28px;
+            font-size: 16px;
+            color: #7a8a9a;
+            letter-spacing: 3px;
+            animation: softPulse 2s infinite;
+        }
+
+        /* ========== 阶段4：邀请函正文 ========== */
         .letter-stage {
             position: fixed;
             inset: 0;
@@ -310,7 +378,6 @@
             color: #2e3b4e;
             line-height: 1.8;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            position: relative;
         }
         .letter-paper::before {
             content: "";
@@ -350,10 +417,9 @@
             font-weight: bold;
             letter-spacing: 2px;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        /* ========== 赛事章程（深蓝风格） ========== */
+        /* ========== 阶段5：章程 ========== */
         .charter-stage {
             position: fixed;
             inset: 0;
@@ -381,7 +447,6 @@
             padding: 30px 25px;
             color: #d9e6f2;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            position: relative;
         }
         .charter-scroll h1 {
             text-align: center;
@@ -389,7 +454,6 @@
             color: var(--gold-light);
             margin-bottom: 20px;
             letter-spacing: 4px;
-            text-shadow: 0 0 15px rgba(197,168,106,0.5);
         }
         .charter-scroll h2 {
             font-size: 20px;
@@ -440,7 +504,6 @@
             border-radius: 6px;
             color: var(--gold);
             cursor: pointer;
-            transition: background 0.3s;
             font-size: 14px;
             letter-spacing: 2px;
         }
@@ -482,20 +545,20 @@
 <body>
     <div id="particles-global"></div>
 
-    <!-- 阶段1：初始信封 -->
-    <div class="stage" id="stage1">
-        <div class="envelope-cover" id="envelopeMain">
-            <div class="seal-icon">⚜️</div>
-            <div class="cover-title">春潮杯</div>
-            <div class="cover-subtitle">辩论友谊赛</div>
-            <div class="hint-tap">— 轻触开启 —</div>
+    <!-- 阶段1：信封 -->
+    <div class="envelope-stage" id="envelopeStage">
+        <div class="envelope-wrapper">
+            <div class="envelope-body"></div>
+            <div class="envelope-flap" id="envelopeFlap"></div>
+            <div class="postmark" id="postmark">春潮</div>
+            <div class="envelope-inside" id="envelopeInside">— 轻触继续 —</div>
         </div>
     </div>
 
-    <!-- 阶段2：梦境 + 三句质问 -->
+    <!-- 阶段2：梦境 -->
     <div class="dream-layer" id="dreamLayer">
         <div class="dream-particles" id="dreamParticles"></div>
-        <div class="questions-container" id="questionsContainer">
+        <div class="questions-container">
             <div class="question-line" id="q1">你想要锻炼自己的评委水平吗？</div>
             <div class="question-line" id="q2">你也对评委奇怪的判准心生不满吗？</div>
             <div class="question-line" id="q3">听完评委的话，觉得有很多想要回击的吗？</div>
@@ -503,7 +566,7 @@
         </div>
     </div>
 
-    <!-- 阶段3：邀请函封面（代替视频后的信封） -->
+    <!-- 阶段3：邀请函封面 -->
     <div class="invite-cover-stage" id="inviteCoverStage">
         <div class="invite-envelope" id="inviteEnvelope">
             <div class="seal-icon">⚜️</div>
@@ -536,7 +599,7 @@
         </div>
     </div>
 
-    <!-- 阶段5：赛事章程 -->
+    <!-- 阶段5：章程 -->
     <div class="charter-stage" id="charterStage">
         <div class="charter-scroll" id="charterScroll">
             <div class="floral-stars" id="floralStars"></div>
@@ -550,34 +613,36 @@
 
     <script>
         (function() {
-            // 全局粒子
-            const particlesGlobal = document.getElementById('particles-global');
+            // 背景粒子
+            const pg = document.getElementById('particles-global');
             for (let i=0; i<40; i++) {
                 const p = document.createElement('div');
                 p.className = 'global-particle';
-                p.style.left = Math.random()*100 + '%';
-                p.style.top = 60 + Math.random()*40 + '%';
+                p.style.left = Math.random()*100+'%';
+                p.style.top = 60+Math.random()*40+'%';
                 p.style.width = p.style.height = (2+Math.random()*5)+'px';
                 p.style.animationDuration = (6+Math.random()*12)+'s';
                 p.style.animationDelay = Math.random()*8+'s';
-                particlesGlobal.appendChild(p);
+                pg.appendChild(p);
             }
 
             // 梦境粒子
-            const dreamPart = document.getElementById('dreamParticles');
+            const dp = document.getElementById('dreamParticles');
             for (let i=0; i<25; i++) {
-                const dp = document.createElement('div');
-                dp.className = 'dream-particle';
-                dp.style.left = Math.random()*90 + '%';
-                dp.style.top = 60+Math.random()*40 + '%';
-                dp.style.animationDuration = (5+Math.random()*7)+'s';
-                dp.style.animationDelay = Math.random()*5+'s';
-                dreamPart.appendChild(dp);
+                const d = document.createElement('div');
+                d.className = 'dream-particle';
+                d.style.left = Math.random()*90+'%';
+                d.style.top = 60+Math.random()*40+'%';
+                d.style.animationDuration = (5+Math.random()*7)+'s';
+                d.style.animationDelay = Math.random()*5+'s';
+                dp.appendChild(d);
             }
 
-            // DOM 元素
-            const stage1 = document.getElementById('stage1');
-            const envelopeMain = document.getElementById('envelopeMain');
+            // 元素
+            const envelopeStage = document.getElementById('envelopeStage');
+            const envelopeFlap = document.getElementById('envelopeFlap');
+            const postmark = document.getElementById('postmark');
+            const envelopeInside = document.getElementById('envelopeInside');
             const dreamLayer = document.getElementById('dreamLayer');
             const q1 = document.getElementById('q1');
             const q2 = document.getElementById('q2');
@@ -590,7 +655,7 @@
             const floralStars = document.getElementById('floralStars');
             const charterContent = document.getElementById('charterContent');
 
-            // 填充章程内容（同前，略作精简以保持代码长度）
+            // 章程内容（完整）
             charterContent.innerHTML = `
                 <h2>第一章 总则与宗旨</h2>
                 <h3>第一条 赛事名称</h3><p>本赛事定名为“春潮杯”辩论友谊赛，以下简称本赛事。</p>
@@ -607,22 +672,21 @@
                         <tr><td>联合发起人</td><td>沈若语、肖苏然、杨美晨、曾德灏</td></tr>
                     </tbody>
                 </table>
-                <h3>第六条 组委会下设四大工作组</h3>
-                <p>1. 赛务部：负责辩题设计、辩题库整理、辩题相关疑问受理，统筹赛程、赛制。<br>2. 评委部：负责评委与主计人员的邀请、联系与确认。<br>3. 联络部：搭建参赛沟通群，完成日常通知、人员对接、消息同步等。<br>4. 组织部：负责分组事宜，统筹队伍混合组队、人员调配，并公示最终分组名单。</p>
+                <h3>第六条 组委会下设四大工作组</h3><p>1. 赛务部：负责辩题设计、辩题库整理、辩题相关疑问受理，统筹赛程、赛制。<br>2. 评委部：负责评委与主计人员的邀请、联系与确认。<br>3. 联络部：搭建参赛沟通群，完成日常通知、人员对接、消息同步等。<br>4. 组织部：负责分组事宜，统筹队伍混合组队、人员调配，并公示最终分组名单。</p>
                 <h3>第七条 管理机制</h3><p>各组组长由组委会协商选定，对本组工作全权负责，定期向组委会同步工作进度；组内职责交叉或衔接事项由组委会统一协调。</p>
                 <h3>第八条 架构调整权限</h3><p>组委会保留对组织架构作必要调整的权利，调整方案须经各组组长协商一致后，统一公示告知全体人员。</p>
                 <h2>第三章 参赛队伍与辩手资格</h2>
-                <h3>第九条 参赛人员限制</h3><p>本赛事为“限制级”赛事，参赛辩手与评委原则上均需2025级在校本科生，此举旨在为同级学生提供专属实战、评裁锻炼空间。</p>
-                <h3>第十条 组队规则—一带一模式</h3><p>1. 组队模式：由两名不同学院辩手作为牵头人，各带领本院一名辩手组成四人队伍，鼓励跨院组队，以促进各学院辩手相互熟悉、积极协作；<br>2. 报名辩手可在报名截止前联系组委或本院领队表达参赛意愿，经组队组统筹编排后，最终分组名单统一公布。</p>
-                <h3>第十一条 亦辩亦评原则</h3><p>所有报名参赛辩手，原则上均需承担对应场次评委工作，参与赛后述票及评议环节，落实双向锻炼办赛目标。</p>
-                <h3>第十二条 人员不足协调方案</h3><p>若学院报名人数不足，无法满足标准一带一组队要求，可由组委会酌情协调跨院补齐名额，或经全体参赛人员同意后调整组队规则，具体情形另行通知。</p>
+                <h3>第九条 参赛人员限制</h3><p>本赛事为“限制级”赛事，参赛辩手与评委原则上均需2025级在校本科生。</p>
+                <h3>第十条 组队规则—一带一模式</h3><p>1. 组队模式：由两名不同学院辩手作为牵头人，各带领本院一名辩手组成四人队伍。<br>2. 报名辩手可在报名截止前联系组委或本院领队表达参赛意愿，经组队组统筹编排后，最终分组名单统一公布。</p>
+                <h3>第十一条 亦辩亦评原则</h3><p>所有报名参赛辩手，原则上均需承担对应场次评委工作。</p>
+                <h3>第十二条 人员不足协调方案</h3><p>若学院报名人数不足，可由组委会酌情协调跨院补齐名额。</p>
                 <h3>第十三条 未尽事宜解释权</h3><p>本章未提及的组队、资格相关问题，由组委会另行解释说明。</p>
                 <h2>第四章 赛程安排和赛制规则</h2>
-                <h3>第十四条 赛事整体基础设定</h3><p>1. 参赛规模：总计6支队伍，赛前抽签获得1–6号编号；<br>2. 赛事形式：纯小组赛积分制，无淘汰赛，共4轮正式比赛，每支队伍固定出战次数，全部赛事结束后按积分排序决出1–6名；<br>3. 总场次：每轮同步开展3场比赛，共4轮，合计12场正式比赛。</p>
-                <h3>第十五条 对战公平规则</h3><p>1. 对阵规则：每队4场对战4支不同队伍；<br>2. 双持方平衡机制：设置辩题A、辩题B两道辩题，每支队伍针对两道辩题各持正方1次、反方1次，抵消辩题天然倾向性；</p>
+                <h3>第十四条 赛事整体基础设定</h3><p>1. 参赛规模：总计6支队伍，赛前抽签获得1–6号编号。<br>2. 赛事形式：纯小组赛积分制，无淘汰赛，共4轮正式比赛。<br>3. 总场次：每轮3场比赛，共4轮12场。</p>
+                <h3>第十五条 对战公平规则</h3><p>1. 对阵规则：每队4场对战4支不同队伍。<br>2. 双持方平衡机制：设置辩题A、B，每队各持正反一次。</p>
                 <h3>第十六条 四轮完整对阵总表</h3>
                 <table class="charter-table">
-                    <thead><tr><th>轮次</th><th>使用辩题</th><th>赛场1（正方VS反方）</th><th>赛场2（正方VS反方）</th><th>赛场3（正方VS反方）</th></tr></thead>
+                    <thead><tr><th>轮次</th><th>使用辩题</th><th>赛场1</th><th>赛场2</th><th>赛场3</th></tr></thead>
                     <tbody>
                         <tr><td>第一轮</td><td>辩题A</td><td>1 vs 6</td><td>2 vs 5</td><td>3 vs 4</td></tr>
                         <tr><td>第二轮</td><td>辩题B</td><td>1 vs 5</td><td>6 vs 4</td><td>2 vs 3</td></tr>
@@ -630,45 +694,64 @@
                         <tr><td>第四轮</td><td>辩题B</td><td>3 vs 1</td><td>4 vs 2</td><td>5 vs 6</td></tr>
                     </tbody>
                 </table>
-                <h3>第十七条 积分与排名规则</h3><p>1. 单场基础积分<br>获胜队伍：积3分<br>落败队伍：积1分<br>弃权、严重违规被判负：积0分，本场计票全部清零<br>2. 名次判定优先级（从前至后依次比对）<br>① 总积分…（略）…⑦ 全部规则无法区分名次，则两队共享排名。<br>3. 最佳辩手评选<br>每场配置3–5名评委，每位评委有三票佳辩票，票数最高者当选；最佳辩手票数持平，由本场评委现场商议确定。</p>
+                <h3>第十七条 积分与排名规则</h3><p>1. 单场基础积分：胜3分，负1分，弃权0分。<br>2. 名次判定优先级：总积分>总得票数>净胜票数>原始票数>直接交手>佳辩次数>共享排名。<br>3. 最佳辩手：每场评委三票佳辩票，票高者当选。</p>
                 <h2>第五章 比赛流程和规则</h2>
-                <h3>第十八条 全场比赛共7个正式辩论环节</h3><p>环节三、五之间设置2分钟中场暂停；各核心大环节结束开放奇袭申请，全部辩论结束后进入赛后评议环节八。</p>
-                <p><strong>环节一：立论与首轮盘问</strong><br>1. 正方一辩立论：3分钟<br>2. 反方四辩盘问正方一辩：1分30秒…<br>…（详细内容已略，实际代码包含完整章程）</p>
-                <h3>第十九条 奇袭通用规则</h3><p>…</p>
-                <h2>第六章 评委构成与评分机制</h2><h3>第二十条 评委构成</h3><p>…</p><h3>第二十一条 完整评分与述票三步流程</h3><p>…</p>
-                <h2>第七章 奖项设置</h2><h3>第二十三条</h3><p>…</p>
-                <h2>第八章 申诉机制和违规处理办法</h2><h3>第二十四条 申诉机制</h3><p>…</p>
-                <h2>第九章 附则</h2><h3>第二十八条 设备突发免责</h3><p>…</p>
+                <h3>第十八条 全场比赛共7个正式辩论环节</h3><p>环节三、五之间中场暂停2分钟。</p>
+                <p><strong>环节一：立论与首轮盘问</strong><br>1. 正方一辩立论3分钟<br>2. 反方四辩盘问正方一辩1分30秒<br>3. 反方一辩立论3分钟<br>4. 正方四辩盘问反方一辩1分30秒</p>
+                <p><strong>环节二：申论与二辩对辩</strong><br>1. 正方二辩申论2分钟<br>2. 反方二辩申论2分钟<br>3. 双方二辩对辩各1分30秒</p>
+                <p><strong>环节三：三辩盘问</strong><br>1. 正方三辩盘问2分钟<br>2. 反方三辩盘问2分钟</p>
+                <p><strong>环节四：中场暂停</strong> 2分钟</p>
+                <p><strong>环节五：盘问小结</strong> 正反各1分30秒</p>
+                <p><strong>环节六：自由辩论</strong> 双方各4分钟</p>
+                <p><strong>环节七：总结陈词</strong> 反方先3分30秒，正方后3分30秒</p>
+                <p><strong>环节八：评委述票、讨论、选手评价</strong></p>
+                <h3>第十九条 奇袭通用规则</h3><p>环节一、二、三、五、六后可申请，每队仅1次，可选质询或申论，时长1分30秒。</p>
+                <h2>第六章 评委构成与评分机制</h2>
+                <h3>第二十条 评委构成</h3><p>参赛25级辩手兼任，实行亦辩亦评。</p>
+                <h3>第二十一条 完整评分与述票三步流程</h3>
+                <p><strong>1. 第一轮：评委投票与述票（四票制）</strong><br>印象票（2分）、环节票（2分）、总结票（4分）、商讨票（1分），总计9分。</p>
+                <p><strong>2. 第二轮：辩手互评与评委权重核算</strong><br>辩手根据判准把握度、合理度给评委打分，核算权重。</p>
+                <p><strong>3. 第三轮：公开讨论与共识复盘</strong><br>不限时讨论，不影响结果。</p>
+                <h2>第七章 奖项设置</h2><h3>第二十三条</h3><p>发放电子参赛证明，可设单场最佳辩手等特色奖项。</p>
+                <h2>第八章 申诉机制和违规处理办法</h2>
+                <h3>第二十四条 申诉机制</h3><p>不开放赛果申诉。</p>
+                <h3>第二十五条 信息造假、违规换人</h3><p>严查，违规判负。</p>
+                <h3>第二十六条 言语攻击类违规</h3><p>视情节扣分、警告。</p>
+                <h3>第二十七条 迟到、缺勤、弃赛处理</h3><p>迟到5分钟扣分，10分钟判负；无故弃赛判负。</p>
+                <h2>第九章 附则</h2>
+                <h3>第二十八条 设备突发免责</h3><p>主办方不承担责任。</p>
+                <h3>第二十九条 赛程调整要求</h3><p>双方协商一致，提前24小时告知组委。</p>
+                <h3>第三十条 组委会调整权限</h3><p>有权修订章程。</p>
+                <h3>第三十一条 最终解释权</h3><p>归春潮杯赛事组委会所有。</p>
                 <p style="text-align:center; margin-top:20px;">春潮杯赛事组委会 · 丙午年夏</p>
             `;
 
-            // 状态机
-            let phase = 'cover';
+            let phase = 'envelope'; // envelope | dream | toInvite | letter | charter
             let questionIndex = 0;
             const totalQuestions = 3;
 
-            // 信封掀开
-            envelopeMain.addEventListener('click', () => {
-                if (phase !== 'cover') return;
+            // 信封：点击邮戳掀开
+            postmark.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (phase !== 'envelope') return;
                 phase = 'dream';
-                envelopeMain.classList.add('opened');
+                postmark.classList.add('opened');
+                envelopeFlap.classList.add('open');
+                envelopeInside.classList.add('show');
                 setTimeout(() => {
-                    stage1.classList.add('hidden');
+                    envelopeStage.classList.add('hidden');
                     dreamLayer.classList.add('active');
                     showQuestion(0);
                     continueHint.classList.add('show');
-                }, 800);
+                }, 1000);
             });
 
             function showQuestion(index) {
                 const questions = [q1, q2, q3];
-                if (index === 0) {
-                    q1.classList.add('q1-start');
-                } else if (index === 1) {
-                    q2.classList.add('q2-start');
-                } else if (index === 2) {
-                    q3.classList.add('q3-start');
-                }
+                if (index === 0) q1.classList.add('q1-start');
+                else if (index === 1) q2.classList.add('q2-start');
+                else if (index === 2) q3.classList.add('q3-start');
+
                 questions[index].classList.add('show');
                 questionIndex = index + 1;
 
@@ -682,7 +765,6 @@
                     } else if (index === 2) {
                         q3.classList.remove('q3-start');
                         q3.classList.add('pos-bot');
-                        // 三句就位，显示提示并自动过渡到邀请函封面
                         continueHint.textContent = '';
                         setTimeout(() => {
                             if (phase === 'dream') {
@@ -695,14 +777,14 @@
                 }, 100);
             }
 
-            // 梦境中点击继续
+            // 梦境中点击继续出下一句
             document.body.addEventListener('click', (e) => {
                 if (phase === 'dream' && questionIndex < totalQuestions) {
                     showQuestion(questionIndex);
                 }
             });
 
-            // 邀请函信封点击
+            // 邀请函封面点击
             inviteEnvelope.addEventListener('click', () => {
                 if (phase !== 'toInvite') return;
                 phase = 'letter';
@@ -716,10 +798,9 @@
                 phase = 'charter';
                 letterStage.classList.remove('visible');
                 charterStage.classList.add('visible');
-                spawnFloralStars();
+                spawnEffects();
             });
 
-            // 关闭章程
             document.getElementById('closeCharterBtn').addEventListener('click', () => {
                 if (phase !== 'charter') return;
                 phase = 'letter';
@@ -727,33 +808,33 @@
                 letterStage.classList.add('visible');
             });
 
-            function spawnFloralStars() {
+            function spawnEffects() {
                 const container = floralStars;
                 for (let i=0; i<15; i++) {
                     setTimeout(() => {
-                        const star = document.createElement('div');
-                        star.className = 'star';
-                        star.style.left = Math.random()*90+'%';
-                        star.style.top = Math.random()*80+'%';
-                        container.appendChild(star);
-                        setTimeout(() => star.remove(), 2000);
+                        const s = document.createElement('div');
+                        s.className = 'star';
+                        s.style.left = Math.random()*90+'%';
+                        s.style.top = Math.random()*80+'%';
+                        container.appendChild(s);
+                        setTimeout(() => s.remove(), 2000);
                     }, i*80);
                 }
                 for (let i=0; i<8; i++) {
                     setTimeout(() => {
-                        const flower = document.createElement('div');
-                        flower.className = 'flower';
-                        flower.style.left = Math.random()*90+'%';
-                        flower.style.top = Math.random()*80+'%';
-                        container.appendChild(flower);
-                        setTimeout(() => flower.remove(), 2500);
+                        const f = document.createElement('div');
+                        f.className = 'flower';
+                        f.style.left = Math.random()*90+'%';
+                        f.style.top = Math.random()*80+'%';
+                        container.appendChild(f);
+                        setTimeout(() => f.remove(), 2500);
                     }, i*120);
                 }
             }
 
-            // 移动端滚动优化
-            document.getElementById('letterPaper').addEventListener('touchmove', e => e.stopPropagation());
-            document.getElementById('charterScroll').addEventListener('touchmove', e => e.stopPropagation());
+            // 滚动优化
+            letterPaper.addEventListener('touchmove', e => e.stopPropagation());
+            charterScroll.addEventListener('touchmove', e => e.stopPropagation());
         })();
     </script>
 </body>
