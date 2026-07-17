@@ -572,7 +572,7 @@
 
     <!-- 视频层 -->
     <div id="videoLayer">
-        <video id="bgVideo" muted playsinline preload="auto">
+        <video id="bgVideo" muted playsinline preload="metadata">
             <source src="invite.mp4" type="video/mp4">
             您的浏览器不支持视频播放。
         </video>
@@ -662,6 +662,7 @@
             const continueHint = document.getElementById('continueHint');
             const videoLayer = document.getElementById('videoLayer');
             const bgVideo = document.getElementById('bgVideo');
+            bgVideo.load();
             const inviteCoverStage = document.getElementById('inviteCoverStage');
             const inviteEnvelope = document.getElementById('inviteEnvelope');
             const letterStage = document.getElementById('letterStage');
@@ -873,12 +874,12 @@
                 videoLayer.classList.remove('show');
                 inviteCoverStage.classList.add('visible');
             });
-            // 12秒保护
+            // 15秒保护
             setTimeout(() => {
                 if (phase === 'video') {
                     bgVideo.dispatchEvent(new Event('ended'));
                 }
-            }, 12000);
+            }, 15000);
 
             // 邀请函封面点击
             inviteEnvelope.addEventListener('click', () => {
