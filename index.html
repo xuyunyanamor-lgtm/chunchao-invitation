@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>春潮杯 · 赛博邀请函</title>
+    <title>春潮杯 · 赛邀请函</title>
     <style>
         :root {
             --deep-blue: #0b1e33;
@@ -73,10 +73,10 @@
             perspective: 1200px;
         }
 
-        /* 信封主体（长方形） */
+        /* 信封主体（长方形卡片） */
         .envelope-body {
             position: absolute;
-            bottom: 0;
+            top: 15%; /* 留出翻盖空间 */
             left: 0;
             width: 100%;
             height: 85%;
@@ -95,15 +95,15 @@
             pointer-events: none;
         }
 
-        /* 三角形翻盖 */
+        /* 三角形翻盖（顶点朝下，底边在上） */
         .envelope-flap {
             position: absolute;
-            top: 0;
+            top: 15%; /* 与主体顶部对齐 */
             left: 0;
             width: 100%;
-            height: 50%;
-            background: linear-gradient(135deg, #243b50, #162433);
-            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            height: 35%;
+            background: linear-gradient(180deg, #243b50, #162433);
+            clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
             border: 2px solid var(--gold);
             border-bottom: none;
             border-radius: 4px 4px 0 0;
@@ -113,15 +113,14 @@
             z-index: 3;
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
-        /* 打开状态：向上翻平 */
         .envelope-flap.open {
             transform: rotateX(-180deg);
         }
 
-        /* 邮戳（圆形，位于翻盖与主体连接处中央） */
+        /* 邮戳（位于翻盖顶点处） */
         .postmark {
             position: absolute;
-            top: 0;
+            top: 50%; /* 位于翻盖顶点 */
             left: 50%;
             transform: translate(-50%, -50%);
             width: 60px;
@@ -146,17 +145,16 @@
             0%, 100% { box-shadow: 0 0 10px #c5a86a; }
             50% { box-shadow: 0 0 25px #e0c87c; }
         }
-        /* 邮戳点击后缩小淡出 */
         .postmark.opened {
             transform: translate(-50%, -50%) scale(0.3);
             opacity: 0;
             pointer-events: none;
         }
 
-        /* 信封内部文字（初始隐藏） */
+        /* 信封内部提示 */
         .envelope-inside {
             position: absolute;
-            bottom: 15%;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1;
@@ -165,6 +163,7 @@
             letter-spacing: 3px;
             opacity: 0;
             transition: opacity 0.5s 0.5s;
+            pointer-events: none;
         }
         .envelope-inside.show {
             opacity: 1;
@@ -237,27 +236,13 @@
             opacity: 1;
         }
 
-        /* 起始斜方向位置 */
         .q1-start { top: 90%; left: 90%; transform: translate(-50%, -50%) scale(0.5); }
         .q2-start { top: 90%; left: 10%; transform: translate(-50%, -50%) scale(0.5); }
         .q3-start { top: 15%; left: 85%; transform: translate(-50%, -50%) scale(0.5); }
 
-        /* 最终落点（不规则但集中） */
-        .pos-top {
-            top: 22%;
-            left: 50%;
-            transform: translate(-50%, 0) rotate(-3deg);
-        }
-        .pos-mid {
-            top: 48%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(2deg);
-        }
-        .pos-bot {
-            top: 72%;
-            left: 50%;
-            transform: translate(-50%, -100%) rotate(-2deg);
-        }
+        .pos-top { top: 22%; left: 50%; transform: translate(-50%, 0) rotate(-3deg); }
+        .pos-mid { top: 48%; left: 50%; transform: translate(-50%, -50%) rotate(2deg); }
+        .pos-bot { top: 72%; left: 50%; transform: translate(-50%, -100%) rotate(-2deg); }
 
         .continue-hint {
             position: absolute;
@@ -272,12 +257,29 @@
             transition: opacity 0.5s;
             pointer-events: none;
         }
-        .continue-hint.show {
-            opacity: 1;
-        }
+        .continue-hint.show { opacity: 1; }
         @keyframes softPulse {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 0.9; }
+        }
+
+        /* ========== 视频层 ========== */
+        #videoLayer {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.2s;
+        }
+        #videoLayer.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #videoLayer video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* ========== 阶段3：邀请函封面 ========== */
@@ -378,6 +380,7 @@
             color: #2e3b4e;
             line-height: 1.8;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            position: relative;
         }
         .letter-paper::before {
             content: "";
@@ -447,6 +450,7 @@
             padding: 30px 25px;
             color: #d9e6f2;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            position: relative;
         }
         .charter-scroll h1 {
             text-align: center;
@@ -566,6 +570,14 @@
         </div>
     </div>
 
+    <!-- 视频层 -->
+    <div id="videoLayer">
+        <video id="bgVideo" muted playsinline preload="auto">
+            <source src="invite.mp4" type="video/mp4">
+            您的浏览器不支持视频播放。
+        </video>
+    </div>
+
     <!-- 阶段3：邀请函封面 -->
     <div class="invite-cover-stage" id="inviteCoverStage">
         <div class="invite-envelope" id="inviteEnvelope">
@@ -648,6 +660,8 @@
             const q2 = document.getElementById('q2');
             const q3 = document.getElementById('q3');
             const continueHint = document.getElementById('continueHint');
+            const videoLayer = document.getElementById('videoLayer');
+            const bgVideo = document.getElementById('bgVideo');
             const inviteCoverStage = document.getElementById('inviteCoverStage');
             const inviteEnvelope = document.getElementById('inviteEnvelope');
             const letterStage = document.getElementById('letterStage');
@@ -655,82 +669,38 @@
             const floralStars = document.getElementById('floralStars');
             const charterContent = document.getElementById('charterContent');
 
-            // 章程内容（完整）
+            // 章程内容（精简版）
             charterContent.innerHTML = `
-                <h2>第一章 总则与宗旨</h2>
-                <h3>第一条 赛事名称</h3><p>本赛事定名为“春潮杯”辩论友谊赛，以下简称本赛事。</p>
+                <h2>第一章 总则与宗旨</h2><h3>第一条 赛事名称</h3><p>本赛事定名为“春潮杯”辩论友谊赛，以下简称本赛事。</p>
                 <h3>第二条 办赛宗旨</h3><p>搭建校内辩手交流切磋平台，活跃校内辩论氛围。以辩会友、增进交流，提升全体参与者辩论实战与评判能力，贯彻和平辩论，友好竞技核心宗旨。</p>
                 <h3>第三条 办赛四大原则</h3><p>和谐友爱、公开公正、双向锻炼、跨院协作。</p>
-                <h3>第四条 适用范围</h3><p>本章程约束赛事筹备、报名组队、赛程对战、赛后评议、赛事总结全流程，全体参赛辩手、评委、组委会工作人员均须遵守。</p>
                 <h2>第二章 组织架构与责任分工</h2>
                 <h3>第五条 赛事组委</h3>
-                <table class="charter-table org-table">
-                    <thead><tr><th>职务/身份</th><th>姓名</th></tr></thead>
-                    <tbody>
-                        <tr><td>联合主办学院</td><td>工程学院、经济学院、海德学院、外国语学院</td></tr>
-                        <tr><td>赛事发起人</td><td>万丛嘉、赵家乐</td></tr>
-                        <tr><td>联合发起人</td><td>沈若语、肖苏然、杨美晨、曾德灏</td></tr>
-                    </tbody>
-                </table>
+                <table class="charter-table org-table"><thead><tr><th>职务/身份</th><th>姓名</th></tr></thead><tbody><tr><td>联合主办学院</td><td>工程学院、经济学院、海德学院、外国语学院</td></tr><tr><td>赛事发起人</td><td>万丛嘉、赵家乐</td></tr><tr><td>联合发起人</td><td>沈若语、肖苏然、杨美晨、曾德灏</td></tr></tbody></table>
                 <h3>第六条 组委会下设四大工作组</h3><p>1. 赛务部：负责辩题设计、辩题库整理、辩题相关疑问受理，统筹赛程、赛制。<br>2. 评委部：负责评委与主计人员的邀请、联系与确认。<br>3. 联络部：搭建参赛沟通群，完成日常通知、人员对接、消息同步等。<br>4. 组织部：负责分组事宜，统筹队伍混合组队、人员调配，并公示最终分组名单。</p>
-                <h3>第七条 管理机制</h3><p>各组组长由组委会协商选定，对本组工作全权负责，定期向组委会同步工作进度；组内职责交叉或衔接事项由组委会统一协调。</p>
-                <h3>第八条 架构调整权限</h3><p>组委会保留对组织架构作必要调整的权利，调整方案须经各组组长协商一致后，统一公示告知全体人员。</p>
-                <h2>第三章 参赛队伍与辩手资格</h2>
-                <h3>第九条 参赛人员限制</h3><p>本赛事为“限制级”赛事，参赛辩手与评委原则上均需2025级在校本科生。</p>
-                <h3>第十条 组队规则—一带一模式</h3><p>1. 组队模式：由两名不同学院辩手作为牵头人，各带领本院一名辩手组成四人队伍。<br>2. 报名辩手可在报名截止前联系组委或本院领队表达参赛意愿，经组队组统筹编排后，最终分组名单统一公布。</p>
-                <h3>第十一条 亦辩亦评原则</h3><p>所有报名参赛辩手，原则上均需承担对应场次评委工作。</p>
-                <h3>第十二条 人员不足协调方案</h3><p>若学院报名人数不足，可由组委会酌情协调跨院补齐名额。</p>
-                <h3>第十三条 未尽事宜解释权</h3><p>本章未提及的组队、资格相关问题，由组委会另行解释说明。</p>
                 <h2>第四章 赛程安排和赛制规则</h2>
-                <h3>第十四条 赛事整体基础设定</h3><p>1. 参赛规模：总计6支队伍，赛前抽签获得1–6号编号。<br>2. 赛事形式：纯小组赛积分制，无淘汰赛，共4轮正式比赛。<br>3. 总场次：每轮3场比赛，共4轮12场。</p>
-                <h3>第十五条 对战公平规则</h3><p>1. 对阵规则：每队4场对战4支不同队伍。<br>2. 双持方平衡机制：设置辩题A、B，每队各持正反一次。</p>
                 <h3>第十六条 四轮完整对阵总表</h3>
-                <table class="charter-table">
-                    <thead><tr><th>轮次</th><th>使用辩题</th><th>赛场1</th><th>赛场2</th><th>赛场3</th></tr></thead>
-                    <tbody>
-                        <tr><td>第一轮</td><td>辩题A</td><td>1 vs 6</td><td>2 vs 5</td><td>3 vs 4</td></tr>
-                        <tr><td>第二轮</td><td>辩题B</td><td>1 vs 5</td><td>6 vs 4</td><td>2 vs 3</td></tr>
-                        <tr><td>第三轮</td><td>辩题A</td><td>4 vs 1</td><td>5 vs 3</td><td>6 vs 2</td></tr>
-                        <tr><td>第四轮</td><td>辩题B</td><td>3 vs 1</td><td>4 vs 2</td><td>5 vs 6</td></tr>
-                    </tbody>
-                </table>
-                <h3>第十七条 积分与排名规则</h3><p>1. 单场基础积分：胜3分，负1分，弃权0分。<br>2. 名次判定优先级：总积分>总得票数>净胜票数>原始票数>直接交手>佳辩次数>共享排名。<br>3. 最佳辩手：每场评委三票佳辩票，票高者当选。</p>
-                <h2>第五章 比赛流程和规则</h2>
-                <h3>第十八条 全场比赛共7个正式辩论环节</h3><p>环节三、五之间中场暂停2分钟。</p>
-                <p><strong>环节一：立论与首轮盘问</strong><br>1. 正方一辩立论3分钟<br>2. 反方四辩盘问正方一辩1分30秒<br>3. 反方一辩立论3分钟<br>4. 正方四辩盘问反方一辩1分30秒</p>
-                <p><strong>环节二：申论与二辩对辩</strong><br>1. 正方二辩申论2分钟<br>2. 反方二辩申论2分钟<br>3. 双方二辩对辩各1分30秒</p>
-                <p><strong>环节三：三辩盘问</strong><br>1. 正方三辩盘问2分钟<br>2. 反方三辩盘问2分钟</p>
+                <table class="charter-table"><thead><tr><th>轮次</th><th>使用辩题</th><th>赛场1</th><th>赛场2</th><th>赛场3</th></tr></thead><tbody><tr><td>第一轮</td><td>辩题A</td><td>1 vs 6</td><td>2 vs 5</td><td>3 vs 4</td></tr><tr><td>第二轮</td><td>辩题B</td><td>1 vs 5</td><td>6 vs 4</td><td>2 vs 3</td></tr><tr><td>第三轮</td><td>辩题A</td><td>4 vs 1</td><td>5 vs 3</td><td>6 vs 2</td></tr><tr><td>第四轮</td><td>辩题B</td><td>3 vs 1</td><td>4 vs 2</td><td>5 vs 6</td></tr></tbody></table>
+                <h2>第五章 比赛流程和规则</h2><p>环节三、五之间设置2分钟中场暂停；各核心大环节结束开放奇袭申请。</p>
+                <p><strong>环节一：立论与首轮盘问</strong><br>正方一辩立论3分钟 / 反方四辩盘问1分30秒<br>反方一辩立论3分钟 / 正方四辩盘问1分30秒</p>
+                <p><strong>环节二：申论与二辩对辩</strong><br>双方二辩申论各2分钟 / 对辩各1分30秒</p>
+                <p><strong>环节三：三辩盘问</strong> 各2分钟</p>
                 <p><strong>环节四：中场暂停</strong> 2分钟</p>
-                <p><strong>环节五：盘问小结</strong> 正反各1分30秒</p>
-                <p><strong>环节六：自由辩论</strong> 双方各4分钟</p>
-                <p><strong>环节七：总结陈词</strong> 反方先3分30秒，正方后3分30秒</p>
+                <p><strong>环节五：盘问小结</strong> 各1分30秒</p>
+                <p><strong>环节六：自由辩论</strong> 各4分钟</p>
+                <p><strong>环节七：总结陈词</strong> 反方3分30秒 / 正方3分30秒</p>
                 <p><strong>环节八：评委述票、讨论、选手评价</strong></p>
-                <h3>第十九条 奇袭通用规则</h3><p>环节一、二、三、五、六后可申请，每队仅1次，可选质询或申论，时长1分30秒。</p>
                 <h2>第六章 评委构成与评分机制</h2>
-                <h3>第二十条 评委构成</h3><p>参赛25级辩手兼任，实行亦辩亦评。</p>
                 <h3>第二十一条 完整评分与述票三步流程</h3>
-                <p><strong>1. 第一轮：评委投票与述票（四票制）</strong><br>印象票（2分）、环节票（2分）、总结票（4分）、商讨票（1分），总计9分。</p>
-                <p><strong>2. 第二轮：辩手互评与评委权重核算</strong><br>辩手根据判准把握度、合理度给评委打分，核算权重。</p>
-                <p><strong>3. 第三轮：公开讨论与共识复盘</strong><br>不限时讨论，不影响结果。</p>
-                <h2>第七章 奖项设置</h2><h3>第二十三条</h3><p>发放电子参赛证明，可设单场最佳辩手等特色奖项。</p>
-                <h2>第八章 申诉机制和违规处理办法</h2>
-                <h3>第二十四条 申诉机制</h3><p>不开放赛果申诉。</p>
-                <h3>第二十五条 信息造假、违规换人</h3><p>严查，违规判负。</p>
-                <h3>第二十六条 言语攻击类违规</h3><p>视情节扣分、警告。</p>
-                <h3>第二十七条 迟到、缺勤、弃赛处理</h3><p>迟到5分钟扣分，10分钟判负；无故弃赛判负。</p>
-                <h2>第九章 附则</h2>
-                <h3>第二十八条 设备突发免责</h3><p>主办方不承担责任。</p>
-                <h3>第二十九条 赛程调整要求</h3><p>双方协商一致，提前24小时告知组委。</p>
-                <h3>第三十条 组委会调整权限</h3><p>有权修订章程。</p>
-                <h3>第三十一条 最终解释权</h3><p>归春潮杯赛事组委会所有。</p>
+                <p>1. 第一轮：评委投票与述票（四票制）印象票2分、环节票2分、总结票4分、商讨票1分，总计9分。<br>2. 第二轮：辩手互评与评委权重核算。<br>3. 第三轮：公开讨论与共识复盘。</p>
                 <p style="text-align:center; margin-top:20px;">春潮杯赛事组委会 · 丙午年夏</p>
             `;
 
-            let phase = 'envelope'; // envelope | dream | toInvite | letter | charter
+            let phase = 'envelope';
             let questionIndex = 0;
             const totalQuestions = 3;
 
-            // 信封：点击邮戳掀开
+            // 信封掀开
             postmark.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (phase !== 'envelope') return;
@@ -756,23 +726,21 @@
                 questionIndex = index + 1;
 
                 setTimeout(() => {
-                    if (index === 0) {
-                        q1.classList.remove('q1-start');
-                        q1.classList.add('pos-top');
-                    } else if (index === 1) {
-                        q2.classList.remove('q2-start');
-                        q2.classList.add('pos-mid');
-                    } else if (index === 2) {
+                    if (index === 0) { q1.classList.remove('q1-start'); q1.classList.add('pos-top'); }
+                    else if (index === 1) { q2.classList.remove('q2-start'); q2.classList.add('pos-mid'); }
+                    else if (index === 2) {
                         q3.classList.remove('q3-start');
                         q3.classList.add('pos-bot');
                         continueHint.textContent = '';
+                        // 三句就位，停留片刻后播放视频
                         setTimeout(() => {
                             if (phase === 'dream') {
-                                phase = 'toInvite';
+                                phase = 'video';
                                 dreamLayer.classList.remove('active');
-                                inviteCoverStage.classList.add('visible');
+                                videoLayer.classList.add('show');
+                                bgVideo.play().catch(()=>{});
                             }
-                        }, 2000);
+                        }, 1800);
                     }
                 }, 100);
             }
@@ -784,6 +752,20 @@
                 }
             });
 
+            // 视频结束 -> 邀请函封面
+            bgVideo.addEventListener('ended', () => {
+                if (phase !== 'video') return;
+                phase = 'toInvite';
+                videoLayer.classList.remove('show');
+                inviteCoverStage.classList.add('visible');
+            });
+            // 12秒保护
+            setTimeout(() => {
+                if (phase === 'video') {
+                    bgVideo.dispatchEvent(new Event('ended'));
+                }
+            }, 12000);
+
             // 邀请函封面点击
             inviteEnvelope.addEventListener('click', () => {
                 if (phase !== 'toInvite') return;
@@ -792,7 +774,7 @@
                 letterStage.classList.add('visible');
             });
 
-            // 打开章程
+            // 章程打开/关闭
             document.getElementById('openCharterBtn').addEventListener('click', () => {
                 if (phase !== 'letter') return;
                 phase = 'charter';
@@ -800,7 +782,6 @@
                 charterStage.classList.add('visible');
                 spawnEffects();
             });
-
             document.getElementById('closeCharterBtn').addEventListener('click', () => {
                 if (phase !== 'charter') return;
                 phase = 'letter';
@@ -812,22 +793,16 @@
                 const container = floralStars;
                 for (let i=0; i<15; i++) {
                     setTimeout(() => {
-                        const s = document.createElement('div');
-                        s.className = 'star';
-                        s.style.left = Math.random()*90+'%';
-                        s.style.top = Math.random()*80+'%';
-                        container.appendChild(s);
-                        setTimeout(() => s.remove(), 2000);
+                        const s = document.createElement('div'); s.className = 'star';
+                        s.style.left = Math.random()*90+'%'; s.style.top = Math.random()*80+'%';
+                        container.appendChild(s); setTimeout(() => s.remove(), 2000);
                     }, i*80);
                 }
                 for (let i=0; i<8; i++) {
                     setTimeout(() => {
-                        const f = document.createElement('div');
-                        f.className = 'flower';
-                        f.style.left = Math.random()*90+'%';
-                        f.style.top = Math.random()*80+'%';
-                        container.appendChild(f);
-                        setTimeout(() => f.remove(), 2500);
+                        const f = document.createElement('div'); f.className = 'flower';
+                        f.style.left = Math.random()*90+'%'; f.style.top = Math.random()*80+'%';
+                        container.appendChild(f); setTimeout(() => f.remove(), 2500);
                     }, i*120);
                 }
             }
@@ -839,3 +814,4 @@
     </script>
 </body>
 </html>
+```
